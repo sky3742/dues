@@ -2,12 +2,13 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { getAccounts } from "@/actions/accounts";
-import { getDaysUntilDue, getCurrentCycle } from "@/lib/utils";
+import { getDaysUntilDue, getCurrentCycle, formatDueDate } from "@/lib/utils";
 import { createDb } from "@/lib/db";
 import { payments } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { DashboardStats } from "@/components/dashboard-stats";
 import { PushSubscribe } from "@/components/push-subscribe";
+import { PaymentToggle } from "@/components/payment-toggle";
 
 export default async function Home() {
   const db = createDb();
@@ -37,6 +38,7 @@ export default async function Home() {
           ...account,
           daysUntilDue,
           isPaid: payment?.paid ?? false,
+          cycle,
         };
       })
   );
@@ -79,34 +81,37 @@ export default async function Home() {
             } else if (account.daysUntilDue === null) {
               alertClass = "alert-neutral";
               statusText = "Past due";
-            } else if (account.daysUntilDue < 0) {
-              alertClass = "alert-error";
-              statusText = `Overdue by ${Math.abs(account.daysUntilDue)} day${Math.abs(account.daysUntilDue) === 1 ? "" : "s"}`;
+            } else if (account.daysUntilDue === 0) {
+              alertClass = "alert-warning";
+              statusText = "Due today";
             } else if (account.daysUntilDue <= account.reminderDays) {
               alertClass = "alert-warning";
-              statusText =
-                account.daysUntilDue === 0
-                  ? "Due today"
-                  : `${account.daysUntilDue} day${account.daysUntilDue === 1 ? "" : "s"} left`;
+              statusText = `${account.daysUntilDue} day${account.daysUntilDue === 1 ? "" : "s"} left`;
             } else {
               statusText = `${account.daysUntilDue} day${account.daysUntilDue === 1 ? "" : "s"} left`;
             }
 
+            const dueDateStr = formatDueDate(
+              account.dueDay,
+              account.cycle.year,
+              account.cycle.month
+            );
+
             return (
               <div key={account.id} className={`alert ${alertClass} flex-col items-start gap-2`}>
-                <div className="flex w-full items-center justify-between">
+                <div className="flex w-full items-start justify-between">
                   <div>
                     <h3 className="font-bold">{account.name}</h3>
                     <p className="text-sm opacity-70">
-                      Due: Day {account.dueDay} •{" "}
-                      {account.type === "recurring" ? "Recurring" : "One-time"}
+                      Due: {dueDateStr} • {account.type === "recurring" ? "Recurring" : "One-time"}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm">{statusText}</span>
-                    <Link href={`/accounts/${account.id}/edit`} className="btn btn-ghost btn-xs">
-                      Edit
-                    </Link>
+                    <PaymentToggle
+                      account={account}
+                      payment={account.isPaid ? { paid: true } : null}
+                    />
                   </div>
                 </div>
               </div>

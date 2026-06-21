@@ -40,7 +40,7 @@ export async function AccountCard({ account }: AccountCardProps) {
   const isPaid = payment?.paid ?? false;
 
   // Determine card style based on status
-  let alertClass = "alert-info"; // Default: not due yet
+  let alertClass = "alert-info";
   let statusText = "";
 
   if (isPaid) {
@@ -49,13 +49,12 @@ export async function AccountCard({ account }: AccountCardProps) {
   } else if (daysUntilDue === null) {
     alertClass = "alert-neutral";
     statusText = "Past due";
-  } else if (daysUntilDue < 0) {
-    alertClass = "alert-error";
-    statusText = `Overdue by ${Math.abs(daysUntilDue)} day${Math.abs(daysUntilDue) === 1 ? "" : "s"}`;
+  } else if (daysUntilDue === 0) {
+    alertClass = "alert-warning";
+    statusText = "Due today";
   } else if (daysUntilDue <= account.reminderDays) {
     alertClass = "alert-warning";
-    statusText =
-      daysUntilDue === 0 ? "Due today" : `${daysUntilDue} day${daysUntilDue === 1 ? "" : "s"} left`;
+    statusText = `${daysUntilDue} day${daysUntilDue === 1 ? "" : "s"} left`;
   } else {
     statusText = `${daysUntilDue} day${daysUntilDue === 1 ? "" : "s"} left`;
   }
