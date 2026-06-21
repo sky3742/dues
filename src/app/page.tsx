@@ -10,11 +10,24 @@ import { DashboardStats } from "@/components/dashboard-stats";
 import { PushSubscribe } from "@/components/push-subscribe";
 import { PaymentToggle } from "@/components/payment-toggle";
 
+function getUrgencyClass(
+  isPaid: boolean,
+  daysUntilDue: number | null,
+  reminderDays: number
+): string {
+  if (isPaid) return "alert-success";
+  if (daysUntilDue === null) return "alert-neutral";
+  if (daysUntilDue < 0) return "alert-error";
+  if (daysUntilDue === 0) return "alert-error";
+  if (daysUntilDue <= 3) return "alert-warning";
+  if (daysUntilDue <= 7) return "bg-amber-100 border-amber-300 text-amber-800";
+  return "alert-info";
+}
+
 export default async function Home() {
   const db = createDb();
   const allAccounts = await getAccounts();
 
-  // Sort accounts: overdue first, then by days until due
   const accountsWithStatus = await Promise.all(
     allAccounts
       .filter((a) => a.isActive)
@@ -43,7 +56,6 @@ export default async function Home() {
       })
   );
 
-  // Sort: overdue (unpaid) first, then due soon, then by days
   accountsWithStatus.sort((a, b) => {
     if (a.isPaid && !b.isPaid) return 1;
     if (!a.isPaid && b.isPaid) return -1;
@@ -67,26 +79,31 @@ export default async function Home() {
 
       <div className="flex flex-col gap-3">
         {accountsWithStatus.length === 0 ? (
-          <div className="alert alert-info">
-            <span>No accounts yet. Click &quot;+ Add&quot; to create one.</span>
+          <div className="text-center py-12">
+            <div className="text-5xl mb-4">📋</div>
+            <p className="text-lg font-medium mb-1">No accounts yet</p>
+            <p className="text-sm opacity-60 mb-4">
+              Create your first account to start tracking payments.
+            </p>
+            <Link href="/accounts/new" className="btn btn-primary btn-sm">
+              + Add Account
+            </Link>
           </div>
         ) : (
           accountsWithStatus.map((account) => {
-            let alertClass = "alert-info";
-            let statusText = "";
+            const alertClass = getUrgencyClass(
+              account.isPaid,
+              account.daysUntilDue,
+              account.reminderDays
+            );
 
+            let statusText = "";
             if (account.isPaid) {
-              alertClass = "alert-success";
               statusText = "Paid";
             } else if (account.daysUntilDue === null) {
-              alertClass = "alert-neutral";
               statusText = "Past due";
             } else if (account.daysUntilDue === 0) {
-              alertClass = "alert-warning";
               statusText = "Due today";
-            } else if (account.daysUntilDue <= account.reminderDays) {
-              alertClass = "alert-warning";
-              statusText = `${account.daysUntilDue} day${account.daysUntilDue === 1 ? "" : "s"} left`;
             } else {
               statusText = `${account.daysUntilDue} day${account.daysUntilDue === 1 ? "" : "s"} left`;
             }
@@ -107,11 +124,14 @@ export default async function Home() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm">{statusText}</span>
+                    <span className="text-sm font-medium">{statusText}</span>
                     <PaymentToggle
                       account={account}
                       payment={account.isPaid ? { paid: true } : null}
                     />
+                    <Link href={`/accounts/${account.id}/edit`} className="btn btn-ghost btn-xs">
+                      Edit
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -120,9 +140,11 @@ export default async function Home() {
         )}
       </div>
 
-      <div className="mt-8">
-        <PushSubscribe />
-      </div>
+      {accountsWithStatus.length > 0 && (
+        <div className="mt-8 pt-6 border-t border-base-300">
+          <PushSubscribe />
+        </div>
+      )}
     </div>
   );
 }

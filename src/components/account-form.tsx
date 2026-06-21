@@ -56,6 +56,9 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
           className="input input-bordered w-full"
           required
         />
+        <label className="label">
+          <span className="label-text-alt opacity-50">A name to identify this payment</span>
+        </label>
       </div>
 
       <div className="form-control">
@@ -70,6 +73,11 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
           <option value="recurring">Recurring (monthly)</option>
           <option value="one_time">One-time</option>
         </select>
+        <label className="label">
+          <span className="label-text-alt opacity-50">
+            Recurring repeats each month, one-time is a single payment
+          </span>
+        </label>
       </div>
 
       <div className="form-control">
@@ -85,6 +93,12 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
           className="input input-bordered w-full"
           required
         />
+        <label className="label">
+          <span className="label-text-alt opacity-50">
+            Day of the month the payment is due. If the month has fewer days, it will default to the
+            last day.
+          </span>
+        </label>
       </div>
 
       <div className="form-control">
@@ -100,9 +114,14 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
           className="input input-bordered w-full"
           required
         />
+        <label className="label">
+          <span className="label-text-alt opacity-50">
+            Push notification sent this many days before the due date
+          </span>
+        </label>
       </div>
 
-      <div className="flex gap-2 justify-end">
+      <div className="flex gap-2 justify-end mt-2">
         <button type="button" className="btn btn-ghost" onClick={() => router.back()}>
           Cancel
         </button>
