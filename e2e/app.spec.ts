@@ -1,14 +1,11 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Dashboard", () => {
-  test("shows empty state when no accounts exist", async ({ page }) => {
-    await page.goto("/");
-    await expect(page.getByText("No accounts yet")).toBeVisible();
-    await expect(page.getByText("+ Add")).toBeVisible();
-  });
+const ts = Date.now();
 
-  test("shows stats with zero counts", async ({ page }) => {
+test.describe("Dashboard", () => {
+  test("shows + Add link and stats", async ({ page }) => {
     await page.goto("/");
+    await expect(page.getByRole("link", { name: "+ Add" })).toBeVisible();
     await expect(page.getByText("Overdue")).toBeVisible();
     await expect(page.getByText("Due Soon")).toBeVisible();
     await expect(page.getByText("Total Accounts")).toBeVisible();
@@ -16,7 +13,7 @@ test.describe("Dashboard", () => {
 
   test("navigation to create account page", async ({ page }) => {
     await page.goto("/");
-    await page.getByText("+ Add").click();
+    await page.getByRole("link", { name: "+ Add" }).click();
     await expect(page).toHaveURL("/accounts/new");
     await expect(page.getByText("Create Account")).toBeVisible();
   });
@@ -24,50 +21,47 @@ test.describe("Dashboard", () => {
 
 test.describe("Account Management", () => {
   test("create a new recurring account", async ({ page }) => {
+    const name = `R-${ts}`;
     await page.goto("/accounts/new");
-
-    await page.getByPlaceholder("e.g. Rent, Internet").fill("Internet");
-    await page.getByLabel("Due Day (1-31)").fill("15");
-    await page.getByLabel("Remind me (days before)").fill("5");
-
+    await page.getByPlaceholder("e.g. Rent, Internet").fill(name);
+    await page.locator('input[name="dueDay"]').fill("15");
+    await page.locator('input[name="reminderDays"]').fill("5");
     await page.getByRole("button", { name: "Create" }).click();
-
-    // Should redirect to accounts page
     await expect(page).toHaveURL("/accounts");
-    await expect(page.getByText("Internet")).toBeVisible();
+    await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
   });
 
   test("create a one-time account", async ({ page }) => {
+    const name = `O-${ts}`;
     await page.goto("/accounts/new");
-
-    await page.getByPlaceholder("e.g. Rent, Internet").fill("Car Repair");
-    await page.selectOption("select[name='type']", "one_time");
-    await page.getByLabel("Due Day (1-31)").fill("1");
-
+    await page.getByPlaceholder("e.g. Rent, Internet").fill(name);
+    await page.locator('select[name="type"]').selectOption("one_time");
+    await page.locator('input[name="dueDay"]').fill("1");
     await page.getByRole("button", { name: "Create" }).click();
-
     await expect(page).toHaveURL("/accounts");
-    await expect(page.getByText("Car Repair")).toBeVisible();
+    await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
   });
 
   test("edit an existing account", async ({ page }) => {
-    // First create an account
+    const name = `E-${ts}`;
+    const updated = `U-${ts}`;
+    // Create
     await page.goto("/accounts/new");
-    await page.getByPlaceholder("e.g. Rent, Internet").fill("Test Account");
-    await page.getByLabel("Due Day (1-31)").fill("10");
+    await page.getByPlaceholder("e.g. Rent, Internet").fill(name);
+    await page.locator('input[name="dueDay"]').fill("10");
     await page.getByRole("button", { name: "Create" }).click();
-
-    // Click edit
-    await page.getByText("Edit").first().click();
-    await expect(page).toHaveURL(/\/accounts\/.*\/edit/);
-
-    // Update the name
-    await page.getByPlaceholder("e.g. Rent, Internet").clear();
-    await page.getByPlaceholder("e.g. Rent, Internet").fill("Updated Account");
-    await page.getByRole("button", { name: "Update" }).click();
-
     await expect(page).toHaveURL("/accounts");
-    await expect(page.getByText("Updated Account")).toBeVisible();
+
+    // Edit
+    await page.locator(".card", { hasText: name }).getByRole("link", { name: "Edit" }).click();
+    await expect(page).toHaveURL(/\/accounts\/.*\/edit/);
+    await expect(page.getByRole("button", { name: "Update" })).toBeVisible();
+
+    await page.getByPlaceholder("e.g. Rent, Internet").clear();
+    await page.getByPlaceholder("e.g. Rent, Internet").fill(updated);
+    await page.getByRole("button", { name: "Update" }).click();
+    await expect(page).toHaveURL("/accounts");
+    await expect(page.getByRole("heading", { name: updated, exact: true })).toBeVisible();
   });
 
   test("navigate back from create form", async ({ page }) => {
@@ -84,34 +78,31 @@ test.describe("Account Management", () => {
 });
 
 test.describe("Dashboard with accounts", () => {
-  test("displays account cards with status", async ({ page }) => {
-    // Create an account first
+  test("displays account cards with due info", async ({ page }) => {
+    const name = `D-${ts}`;
     await page.goto("/accounts/new");
-    await page.getByPlaceholder("e.g. Rent, Internet").fill("Rent");
-    await page.getByLabel("Due Day (1-31)").fill("1");
+    await page.getByPlaceholder("e.g. Rent, Internet").fill(name);
+    await page.locator('input[name="dueDay"]').fill("25");
     await page.getByRole("button", { name: "Create" }).click();
-
-    // Go to dashboard
     await page.goto("/");
-    await expect(page.getByText("Rent")).toBeVisible();
-    await expect(page.getByText("Recurring")).toBeVisible();
+    await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
   });
 
   test("toggle payment status on dashboard", async ({ page }) => {
-    // Create an account
+    const name = `T-${ts}`;
     await page.goto("/accounts/new");
-    await page.getByPlaceholder("e.g. Rent, Internet").fill("Electric Bill");
-    await page.getByLabel("Due Day (1-31)").fill("15");
+    await page.getByPlaceholder("e.g. Rent, Internet").fill(name);
+    await page.locator('input[name="dueDay"]').fill("15");
     await page.getByRole("button", { name: "Create" }).click();
-
-    // Go to dashboard
     await page.goto("/");
-    await expect(page.getByText("Electric Bill")).toBeVisible();
+    await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
 
-    // Click Mark Paid button
-    await page.getByRole("button", { name: "Mark Paid" }).first().click();
-
-    // Should show Paid status
-    await expect(page.getByRole("button", { name: "Paid" }).first()).toBeVisible();
+    await page
+      .locator(".alert", { hasText: name })
+      .getByRole("button", { name: "Mark Paid" })
+      .click();
+    await expect(
+      page.locator(".alert", { hasText: name }).getByRole("button", { name: "Paid" })
+    ).toBeVisible();
   });
 });

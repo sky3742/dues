@@ -1,12 +1,15 @@
-"use client";
-
 import { AccountForm } from "@/components/account-form";
-import { updateAccount } from "@/actions/accounts";
+import { updateAccount, getAccount } from "@/actions/accounts";
 import Link from "next/link";
-import { use } from "react";
+import { notFound } from "next/navigation";
 
-export default function EditAccountPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default async function EditAccountPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const account = await getAccount(id);
+
+  if (!account) {
+    notFound();
+  }
 
   return (
     <div className="container mx-auto max-w-2xl p-4">
@@ -15,9 +18,11 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
       <div className="card bg-base-200">
         <div className="card-body">
           <AccountForm
+            account={account}
             onSubmit={async (data) => {
+              "use server";
               const result = await updateAccount({
-                id,
+                id: account.id,
                 name: data.name,
                 type: data.type,
                 dueDay: data.dueDay,
