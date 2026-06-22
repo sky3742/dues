@@ -9,19 +9,20 @@ import { eq, and } from "drizzle-orm";
 import { DashboardStats } from "@/components/dashboard-stats";
 import { PushSubscribe } from "@/components/push-subscribe";
 import { PaymentToggle } from "@/components/payment-toggle";
+import { PageTransition } from "@/components/page-transition";
 
-function getUrgencyClass(
+function getUrgencyConfig(
   isPaid: boolean,
-  daysUntilDue: number | null,
-  reminderDays: number
-): string {
-  if (isPaid) return "alert-success";
-  if (daysUntilDue === null) return "alert-neutral";
-  if (daysUntilDue < 0) return "alert-error";
-  if (daysUntilDue === 0) return "alert-error";
-  if (daysUntilDue <= 3) return "alert-warning";
-  if (daysUntilDue <= 7) return "bg-amber-100 border-amber-300 text-amber-800";
-  return "alert-info";
+  daysUntilDue: number | null
+): { color: string; bg: string; icon: string } {
+  if (isPaid) return { color: "text-success", bg: "bg-success/10", icon: "✅" };
+  if (daysUntilDue === null)
+    return { color: "text-base-content/50", bg: "bg-base-200", icon: "⏰" };
+  if (daysUntilDue < 0) return { color: "text-error", bg: "bg-error/10", icon: "🚨" };
+  if (daysUntilDue === 0) return { color: "text-error", bg: "bg-error/10", icon: "⚡" };
+  if (daysUntilDue <= 3) return { color: "text-warning", bg: "bg-warning/10", icon: "⚠️" };
+  if (daysUntilDue <= 7) return { color: "text-orange-500", bg: "bg-orange-500/10", icon: "🔶" };
+  return { color: "text-info", bg: "bg-info/10", icon: "🔵" };
 }
 
 export default async function Home() {
@@ -65,86 +66,114 @@ export default async function Home() {
   });
 
   return (
-    <div className="container mx-auto max-w-2xl p-4">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Dues Reminder</h1>
-        <Link href="/accounts/new" className="btn btn-primary btn-sm">
-          + Add
-        </Link>
-      </div>
+    <PageTransition>
+      <div className="container mx-auto max-w-4xl px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
+          <p className="text-base-content/60">Track your upcoming payments and dues</p>
+        </div>
 
-      <div className="mb-6">
-        <DashboardStats />
-      </div>
+        <div className="mb-8">
+          <DashboardStats />
+        </div>
 
-      <div className="flex flex-col gap-3">
-        {accountsWithStatus.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-5xl mb-4">📋</div>
-            <p className="text-lg font-medium mb-1">No accounts yet</p>
-            <p className="text-sm opacity-60 mb-4">
-              Create your first account to start tracking payments.
-            </p>
-            <Link href="/accounts/new" className="btn btn-primary btn-sm">
-              + Add Account
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Upcoming Dues</h2>
+            <Link href="/accounts/new" className="btn btn-primary btn-sm gap-1">
+              <span className="text-lg leading-none">+</span>
+              <span>Add Account</span>
             </Link>
           </div>
-        ) : (
-          accountsWithStatus.map((account) => {
-            const alertClass = getUrgencyClass(
-              account.isPaid,
-              account.daysUntilDue,
-              account.reminderDays
-            );
 
-            let statusText = "";
-            if (account.isPaid) {
-              statusText = "Paid";
-            } else if (account.daysUntilDue === null) {
-              statusText = "Past due";
-            } else if (account.daysUntilDue === 0) {
-              statusText = "Due today";
-            } else {
-              statusText = `${account.daysUntilDue} day${account.daysUntilDue === 1 ? "" : "s"} left`;
-            }
-
-            const dueDateStr = formatDueDate(
-              account.dueDay,
-              account.cycle.year,
-              account.cycle.month
-            );
-
-            return (
-              <div key={account.id} className={`alert ${alertClass} flex-col items-start gap-2`}>
-                <div className="flex w-full items-start justify-between">
-                  <div>
-                    <h3 className="font-bold">{account.name}</h3>
-                    <p className="text-sm opacity-70">
-                      Due: {dueDateStr} • {account.type === "recurring" ? "Recurring" : "One-time"}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">{statusText}</span>
-                    <PaymentToggle
-                      account={account}
-                      payment={account.isPaid ? { paid: true } : null}
-                    />
-                    <Link href={`/accounts/${account.id}/edit`} className="btn btn-ghost btn-xs">
-                      Edit
-                    </Link>
-                  </div>
-                </div>
+          {accountsWithStatus.length === 0 ? (
+            <div className="card bg-base-100 shadow-sm">
+              <div className="card-body items-center text-center py-16">
+                <div className="text-6xl mb-4 animate-pulse-soft">📋</div>
+                <h3 className="text-xl font-semibold mb-2">No accounts yet</h3>
+                <p className="text-base-content/60 mb-6 max-w-sm">
+                  Create your first account to start tracking payments and receive timely reminders.
+                </p>
+                <Link href="/accounts/new" className="btn btn-primary gap-2">
+                  <span className="text-lg">+</span>
+                  Create Your First Account
+                </Link>
               </div>
-            );
-          })
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {accountsWithStatus.map((account, index) => {
+                const urgency = getUrgencyConfig(account.isPaid, account.daysUntilDue);
+
+                let statusText = "";
+                if (account.isPaid) {
+                  statusText = "Paid";
+                } else if (account.daysUntilDue === null) {
+                  statusText = "Past due";
+                } else if (account.daysUntilDue === 0) {
+                  statusText = "Due today";
+                } else {
+                  statusText = `${account.daysUntilDue} day${account.daysUntilDue === 1 ? "" : "s"} left`;
+                }
+
+                const dueDateStr = formatDueDate(
+                  account.dueDay,
+                  account.cycle.year,
+                  account.cycle.month
+                );
+
+                return (
+                  <div
+                    key={account.id}
+                    className={`stagger-item card bg-base-100 shadow-sm card-hover ${urgency.bg} border border-base-300/50`}
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <div className="card-body p-4 sm:p-5">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl mt-0.5">{urgency.icon}</span>
+                          <div>
+                            <h3 className="font-semibold text-lg">{account.name}</h3>
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-base-content/60">
+                              <span>Due: {dueDateStr}</span>
+                              <span className="hidden sm:inline">•</span>
+                              <span>{account.type === "recurring" ? "Monthly" : "One-time"}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 ml-9 sm:ml-0">
+                          <span className={`text-sm font-medium ${urgency.color}`}>
+                            {statusText}
+                          </span>
+                          <PaymentToggle
+                            account={account}
+                            payment={account.isPaid ? { paid: true } : null}
+                          />
+                          <Link
+                            href={`/accounts/${account.id}/edit`}
+                            className="btn btn-ghost btn-sm"
+                          >
+                            Edit
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {accountsWithStatus.length > 0 && (
+          <div className="card bg-base-100 shadow-sm mt-8">
+            <div className="card-body">
+              <PushSubscribe />
+            </div>
+          </div>
         )}
       </div>
-
-      {accountsWithStatus.length > 0 && (
-        <div className="mt-8 pt-6 border-t border-base-300">
-          <PushSubscribe />
-        </div>
-      )}
-    </div>
+    </PageTransition>
   );
 }

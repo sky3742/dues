@@ -2,34 +2,35 @@
 
 import { AccountForm } from "@/components/account-form";
 import { createAccount } from "@/actions/accounts";
-import Link from "next/link";
+import { PageTransition } from "@/components/page-transition";
 
 export default function NewAccountPage() {
   return (
-    <div className="container mx-auto max-w-2xl p-4">
-      <h1 className="text-2xl font-bold mb-6">Create Account</h1>
+    <PageTransition>
+      <div className="container mx-auto max-w-4xl px-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">Create Account</h1>
+            <p className="text-base-content/60">Add a new payment account to track</p>
+          </div>
 
-      <div className="card bg-base-200">
-        <div className="card-body">
-          <AccountForm
-            onSubmit={async (data) => {
-              const result = await createAccount({
-                name: data.name,
-                type: data.type,
-                dueDay: data.dueDay,
-                reminderDays: data.reminderDays,
-              });
-              return result;
-            }}
-          />
+          <div className="card bg-base-100 shadow-sm">
+            <div className="card-body p-6">
+              <AccountForm
+                onSubmit={async (data) => {
+                  const result = await createAccount({
+                    name: data.name,
+                    type: data.type,
+                    dueDay: data.dueDay,
+                    reminderDays: data.reminderDays,
+                  });
+                  return result;
+                }}
+              />
+            </div>
+          </div>
         </div>
       </div>
-
-      <div className="mt-6">
-        <Link href="/accounts" className="btn btn-ghost">
-          ← Back to Accounts
-        </Link>
-      </div>
-    </div>
+    </PageTransition>
   );
 }
