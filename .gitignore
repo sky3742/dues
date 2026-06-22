@@ -12,6 +12,9 @@
 
 # testing
 /coverage
+playwright-report
+test-results
+screenshots
 
 # next.js
 /.next/
@@ -44,3 +47,6 @@ next-env.d.ts
 # local db
 *.db
 *.db-*
+
+# scripts
+/scripts
