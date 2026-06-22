@@ -68,12 +68,14 @@ export default async function Home() {
         const isPaid = payment?.paid ?? false;
 
         let nextDueDateStr: string | null = null;
-        if (isPaid && nextDue) {
-          nextDueDateStr = formatDueDate(
-            account.dueDay,
-            nextDue.getMonth() + 1,
-            nextDue.getFullYear()
-          );
+        if (isPaid) {
+          let nextMonth = cycle.month + 1;
+          let nextYear = cycle.year;
+          if (nextMonth > 12) {
+            nextMonth = 1;
+            nextYear++;
+          }
+          nextDueDateStr = formatDueDate(account.dueDay, nextYear, nextMonth);
         }
 
         return {
