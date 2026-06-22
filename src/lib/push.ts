@@ -2,10 +2,10 @@ import webPush from "web-push";
 import type { PushSubscription } from "web-push";
 
 // Configure VAPID keys
-if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webPush.setVapidDetails(
     process.env.VAPID_SUBJECT || "mailto:localhost@localhost",
-    process.env.VAPID_PUBLIC_KEY,
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY
   );
 }
