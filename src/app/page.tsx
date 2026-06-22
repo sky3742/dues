@@ -33,24 +33,24 @@ export default async function Home() {
     allAccounts
       .filter((a) => a.isActive)
       .map(async (account) => {
-        const daysUntilDue = getDaysUntilDue(account.dueDay, account.type, account.createdAt);
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const nextDue = getNextDueDate(account.dueDay, account.type, account.createdAt);
 
-        const now = new Date();
         const daysUntilNextDue = nextDue
-          ? Math.round(
-              (nextDue.getTime() -
-                new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()) /
-                (1000 * 60 * 60 * 24)
-            )
+          ? Math.round((nextDue.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
           : null;
         const inStatementWindow = daysUntilNextDue !== null && daysUntilNextDue <= 20;
 
         let cycle: { year: number; month: number };
+        let daysUntilDue: number | null;
+
         if (inStatementWindow && nextDue) {
           cycle = { year: nextDue.getFullYear(), month: nextDue.getMonth() + 1 };
+          daysUntilDue = daysUntilNextDue;
         } else {
           cycle = { year: now.getFullYear(), month: now.getMonth() + 1 };
+          daysUntilDue = getDaysUntilDue(account.dueDay, account.type, account.createdAt);
         }
 
         const [payment] = await db
