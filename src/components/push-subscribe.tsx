@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -91,18 +92,40 @@ export function PushSubscribe() {
 
   if (!isSupported) {
     return (
-      <div className="alert alert-info">
-        <span>Push notifications are not supported in this browser.</span>
+      <div className="flex items-center gap-3 p-4 rounded-lg bg-base-200/50">
+        <span className="text-xl">🔔</span>
+        <div>
+          <p className="font-medium">Push Notifications</p>
+          <p className="text-sm text-base-content/60">
+            Push notifications are not supported in this browser.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm">
-        {isSubscribed ? "Push notifications enabled" : "Push notifications disabled"}
-      </span>
-      <button
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div
+          className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+            isSubscribed ? "bg-success/10" : "bg-base-content/5"
+          }`}
+        >
+          <span className="text-xl">{isSubscribed ? "🔔" : "🔕"}</span>
+        </div>
+        <div>
+          <p className="font-medium">Push Notifications</p>
+          <p className="text-sm text-base-content/60">
+            {isSubscribed
+              ? "You will receive reminders before due dates"
+              : "Enable to receive reminders before due dates"}
+          </p>
+        </div>
+      </div>
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         className={`btn btn-sm ${isSubscribed ? "btn-error" : "btn-primary"}`}
         onClick={isSubscribed ? unsubscribe : subscribe}
         disabled={isLoading}
@@ -114,7 +137,7 @@ export function PushSubscribe() {
         ) : (
           "Enable"
         )}
-      </button>
+      </motion.button>
     </div>
   );
 }

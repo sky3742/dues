@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { motion } from "framer-motion";
 
 type Account = {
   id?: string;
@@ -43,98 +44,129 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="form-control">
-        <label className="label">
-          <span className="label-text">Name</span>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <label className="label mb-1.5">
+          <span className="label-text font-medium">Name</span>
         </label>
         <input
           type="text"
           name="name"
           defaultValue={account?.name}
-          placeholder="e.g. Rent, Internet"
-          className="input input-bordered w-full"
+          placeholder="e.g. Rent, Internet, Netflix"
+          className="input input-bordered w-full focus:input-primary transition-colors"
           required
         />
         <label className="label">
-          <span className="label-text-alt opacity-50">A name to identify this payment</span>
+          <span className="label-text-alt text-base-content/50">
+            A name to identify this payment
+          </span>
         </label>
-      </div>
+      </motion.div>
 
-      <div className="form-control">
-        <label className="label">
-          <span className="label-text">Type</span>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+      >
+        <label className="label mb-1.5">
+          <span className="label-text font-medium">Type</span>
         </label>
         <select
           name="type"
           defaultValue={account?.type ?? "recurring"}
-          className="select select-bordered w-full"
+          className="select select-bordered w-full focus:select-primary transition-colors"
         >
           <option value="recurring">Recurring (monthly)</option>
           <option value="one_time">One-time</option>
         </select>
         <label className="label">
-          <span className="label-text-alt opacity-50">
+          <span className="label-text-alt text-base-content/50">
             Recurring repeats each month, one-time is a single payment
           </span>
         </label>
+      </motion.div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <label className="label mb-1.5">
+            <span className="label-text font-medium">Due Day</span>
+          </label>
+          <input
+            type="number"
+            name="dueDay"
+            defaultValue={account?.dueDay ?? 1}
+            min={1}
+            max={31}
+            className="input input-bordered w-full focus:input-primary transition-colors"
+            required
+          />
+          <label className="label">
+            <span className="label-text-alt text-base-content/50">1-31</span>
+          </label>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+        >
+          <label className="label mb-1.5">
+            <span className="label-text font-medium">Remind me</span>
+          </label>
+          <input
+            type="number"
+            name="reminderDays"
+            defaultValue={account?.reminderDays ?? 3}
+            min={0}
+            max={30}
+            className="input input-bordered w-full focus:input-primary transition-colors"
+            required
+          />
+          <label className="label">
+            <span className="label-text-alt text-base-content/50">Days before due</span>
+          </label>
+        </motion.div>
       </div>
 
-      <div className="form-control">
-        <label className="label">
-          <span className="label-text">Due Day (1-31)</span>
-        </label>
-        <input
-          type="number"
-          name="dueDay"
-          defaultValue={account?.dueDay ?? 1}
-          min={1}
-          max={31}
-          className="input input-bordered w-full"
-          required
-        />
-        <label className="label">
-          <span className="label-text-alt opacity-50">
-            Day of the month the payment is due. If the month has fewer days, it will default to the
-            last day.
-          </span>
-        </label>
-      </div>
-
-      <div className="form-control">
-        <label className="label">
-          <span className="label-text">Remind me (days before)</span>
-        </label>
-        <input
-          type="number"
-          name="reminderDays"
-          defaultValue={account?.reminderDays ?? 3}
-          min={0}
-          max={30}
-          className="input input-bordered w-full"
-          required
-        />
-        <label className="label">
-          <span className="label-text-alt opacity-50">
-            Push notification sent this many days before the due date
-          </span>
-        </label>
-      </div>
-
-      <div className="flex gap-2 justify-end mt-2">
-        <button type="button" className="btn btn-ghost" onClick={() => router.back()}>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="flex gap-3 justify-end mt-4 pt-4 border-t border-base-300"
+      >
+        <button
+          type="button"
+          className="btn btn-ghost"
+          onClick={() => router.back()}
+          disabled={isPending}
+        >
           Cancel
         </button>
-        <button type="submit" className="btn btn-primary" disabled={isPending}>
+        <motion.button
+          type="submit"
+          className="btn btn-primary min-w-[120px]"
+          disabled={isPending}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
           {isPending ? (
-            <span className="loading loading-spinner loading-xs" />
+            <span className="loading loading-spinner loading-sm" />
           ) : account?.id ? (
-            "Update"
+            "Update Account"
           ) : (
-            "Create"
+            "Create Account"
           )}
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
     </form>
   );
 }
