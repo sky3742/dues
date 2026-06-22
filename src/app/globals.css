@@ -5,27 +5,111 @@
     dark --prefersdark;
 }
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-slide-up: slide-up 0.4s ease-out;
+  --animate-slide-down: slide-down 0.3s ease-out;
+  --animate-scale-in: scale-in 0.2s ease-out;
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Better focus styles */
+:focus-visible {
+  outline: 2px solid oklch(var(--p));
+  outline-offset: 2px;
+}
+
+/* Card hover effect */
+.card-hover {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px oklch(0 0 0 / 0.1);
+}
+
+/* Stagger animation for lists */
+.stagger-item {
+  animation: slide-up 0.4s ease-out both;
+}
+
+.stagger-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.stagger-item:nth-child(2) {
+  animation-delay: 50ms;
+}
+
+.stagger-item:nth-child(3) {
+  animation-delay: 100ms;
+}
+
+.stagger-item:nth-child(4) {
+  animation-delay: 150ms;
+}
+
+.stagger-item:nth-child(5) {
+  animation-delay: 200ms;
+}
+
+.stagger-item:nth-child(6) {
+  animation-delay: 250ms;
 }
