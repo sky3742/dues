@@ -17,9 +17,22 @@ export async function DashboardStats() {
     const daysUntilDue = getDaysUntilDue(account.dueDay, account.type, account.createdAt);
 
     const nextDue = getNextDueDate(account.dueDay, account.type, account.createdAt);
-    const cycle = nextDue
-      ? { year: nextDue.getFullYear(), month: nextDue.getMonth() + 1 }
-      : { year: new Date().getFullYear(), month: new Date().getMonth() + 1 };
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    let cycle: { year: number; month: number };
+    if (nextDue) {
+      const daysUntilNextDue = Math.round(
+        (nextDue.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      if (daysUntilNextDue <= 20) {
+        cycle = { year: nextDue.getFullYear(), month: nextDue.getMonth() + 1 };
+      } else {
+        cycle = { year: now.getFullYear(), month: now.getMonth() + 1 };
+      }
+    } else {
+      cycle = { year: now.getFullYear(), month: now.getMonth() + 1 };
+    }
 
     const [payment] = await db
       .select()

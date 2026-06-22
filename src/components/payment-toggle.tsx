@@ -34,10 +34,17 @@ export function PaymentToggle({ account, payment }: PaymentToggleProps) {
 
   const getNextCycle = () => {
     const nextDue = getNextDueDate(account.dueDay, account.type, account.createdAt);
-    if (nextDue) {
-      return { year: nextDue.getFullYear(), month: nextDue.getMonth() + 1 };
-    }
     const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if (nextDue) {
+      const daysUntilNextDue = Math.round(
+        (nextDue.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      if (daysUntilNextDue <= 20) {
+        return { year: nextDue.getFullYear(), month: nextDue.getMonth() + 1 };
+      }
+    }
     return { year: now.getFullYear(), month: now.getMonth() + 1 };
   };
 
