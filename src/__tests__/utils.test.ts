@@ -1,5 +1,51 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { getNextDueDate, getDaysUntilDue, getCurrentCycle, formatDueDate } from "@/lib/utils";
+import {
+  getNextDueDate,
+  getCurrentDueDate,
+  getDaysUntilDue,
+  getCurrentCycle,
+  formatDueDate,
+} from "@/lib/utils";
+
+describe("getCurrentDueDate", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("returns this month's due date for recurring when due day hasn't passed", () => {
+    vi.setSystemTime(new Date("2026-06-10"));
+    const result = getCurrentDueDate(15, "recurring", "2026-01-01T00:00:00.000Z");
+    expect(result).toEqual(new Date(2026, 5, 15));
+  });
+
+  it("returns this month's due date for recurring even when due day has passed", () => {
+    vi.setSystemTime(new Date("2026-06-20"));
+    const result = getCurrentDueDate(15, "recurring", "2026-01-01T00:00:00.000Z");
+    expect(result).toEqual(new Date(2026, 5, 15));
+  });
+
+  it("handles month-end clamping for recurring", () => {
+    vi.setSystemTime(new Date("2026-06-10"));
+    const result = getCurrentDueDate(31, "recurring", "2026-01-01T00:00:00.000Z");
+    expect(result).toEqual(new Date(2026, 5, 30));
+  });
+
+  it("returns creation month's due date for one-time", () => {
+    vi.setSystemTime(new Date("2026-06-10"));
+    const result = getCurrentDueDate(15, "one_time", "2026-06-01T00:00:00.000Z");
+    expect(result).toEqual(new Date(2026, 5, 15));
+  });
+
+  it("returns null for one-time past due", () => {
+    vi.setSystemTime(new Date("2026-07-10"));
+    const result = getCurrentDueDate(15, "one_time", "2026-06-01T00:00:00.000Z");
+    expect(result).toBeNull();
+  });
+});
 
 describe("getNextDueDate", () => {
   beforeEach(() => {
@@ -10,13 +56,13 @@ describe("getNextDueDate", () => {
     vi.useRealTimers();
   });
 
-  it("returns this month's due date for recurring account when due day hasn't passed", () => {
+  it("returns this month's due date for recurring when due day hasn't passed", () => {
     vi.setSystemTime(new Date("2026-06-10"));
     const result = getNextDueDate(15, "recurring", "2026-01-01T00:00:00.000Z");
     expect(result).toEqual(new Date(2026, 5, 15));
   });
 
-  it("returns next month's due date for recurring account when due day has passed", () => {
+  it("returns next month's due date for recurring when due day has passed", () => {
     vi.setSystemTime(new Date("2026-06-20"));
     const result = getNextDueDate(15, "recurring", "2026-01-01T00:00:00.000Z");
     expect(result).toEqual(new Date(2026, 6, 15));
@@ -25,28 +71,24 @@ describe("getNextDueDate", () => {
   it("handles month-end edge case: dueDay 31 in 30-day month (current month)", () => {
     vi.setSystemTime(new Date("2026-06-10"));
     const result = getNextDueDate(31, "recurring", "2026-01-01T00:00:00.000Z");
-    // June has 30 days, so clamped to 30. Day 10 < 30, so returns June 30.
     expect(result).toEqual(new Date(2026, 5, 30));
   });
 
   it("handles month-end edge case: dueDay 31 in 30-day month (next month)", () => {
-    vi.setSystemTime(new Date("2026-06-31")); // Actually July 1
+    vi.setSystemTime(new Date("2026-06-31"));
     const result = getNextDueDate(31, "recurring", "2026-01-01T00:00:00.000Z");
-    // July has 31 days, so clamped to 31.
     expect(result).toEqual(new Date(2026, 6, 31));
   });
 
   it("handles February: dueDay 15 in current month when day hasn't passed", () => {
     vi.setSystemTime(new Date("2026-01-10"));
     const result = getNextDueDate(15, "recurring", "2025-01-01T00:00:00.000Z");
-    // Jan 10 < 15, so returns Jan 15
     expect(result).toEqual(new Date(2026, 0, 15));
   });
 
   it("handles February: dueDay 15 when day has passed, returns Feb", () => {
     vi.setSystemTime(new Date("2026-01-20"));
     const result = getNextDueDate(15, "recurring", "2025-01-01T00:00:00.000Z");
-    // Jan 20 > 15, so returns Feb 15
     expect(result).toEqual(new Date(2026, 1, 15));
   });
 
@@ -90,11 +132,10 @@ describe("getDaysUntilDue", () => {
     expect(result).toBe(0);
   });
 
-  it("returns negative number for overdue (next month's due date)", () => {
+  it("returns negative number for overdue (due day passed this month)", () => {
     vi.setSystemTime(new Date("2026-06-20"));
     const result = getDaysUntilDue(15, "recurring", "2026-01-01T00:00:00.000Z");
-    // Due date is July 15 (25 days from June 20)
-    expect(result).toBe(25);
+    expect(result).toBe(-5);
   });
 
   it("returns null for one-time past due", () => {

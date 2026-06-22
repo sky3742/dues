@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { getAccounts } from "@/actions/accounts";
-import { getDaysUntilDue, getCurrentCycle, formatDueDate } from "@/lib/utils";
+import { getDaysUntilDue, formatDueDate, getNextDueDate } from "@/lib/utils";
 import { createDb } from "@/lib/db";
 import { payments } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -34,7 +34,10 @@ export default async function Home() {
       .filter((a) => a.isActive)
       .map(async (account) => {
         const daysUntilDue = getDaysUntilDue(account.dueDay, account.type, account.createdAt);
-        const cycle = getCurrentCycle(account.type, account.createdAt);
+        const nextDue = getNextDueDate(account.dueDay, account.type, account.createdAt);
+        const cycle = nextDue
+          ? { year: nextDue.getFullYear(), month: nextDue.getMonth() + 1 }
+          : { year: new Date().getFullYear(), month: new Date().getMonth() + 1 };
 
         const [payment] = await db
           .select()
@@ -48,11 +51,23 @@ export default async function Home() {
           )
           .limit(1);
 
+        const isPaid = payment?.paid ?? false;
+
+        let nextDueDateStr: string | null = null;
+        if (isPaid && nextDue) {
+          nextDueDateStr = formatDueDate(
+            account.dueDay,
+            nextDue.getMonth() + 1,
+            nextDue.getFullYear()
+          );
+        }
+
         return {
           ...account,
           daysUntilDue,
-          isPaid: payment?.paid ?? false,
+          isPaid,
           cycle,
+          nextDueDateStr,
         };
       })
   );
@@ -107,9 +122,14 @@ export default async function Home() {
 
                 let statusText = "";
                 if (account.isPaid) {
-                  statusText = "Paid";
+                  statusText = account.nextDueDateStr
+                    ? `Paid — next due ${account.nextDueDateStr}`
+                    : "Paid";
                 } else if (account.daysUntilDue === null) {
                   statusText = "Past due";
+                } else if (account.daysUntilDue < 0) {
+                  const overdueDays = Math.abs(account.daysUntilDue);
+                  statusText = `Overdue by ${overdueDays} day${overdueDays === 1 ? "" : "s"}`;
                 } else if (account.daysUntilDue === 0) {
                   statusText = "Due today";
                 } else {

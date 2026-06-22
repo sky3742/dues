@@ -1,12 +1,3 @@
-/**
- * Calculate the next due date for an account.
- *
- * For recurring: the next occurrence of dueDay (this month or next).
- * For one-time: the dueDay of the creation month (past due → null).
- *
- * Handles month-end edge cases (e.g. dueDay=31 in Feb → Feb 28/29).
- */
-
 function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month, 0).getDate();
 }
@@ -16,14 +7,18 @@ function clampToMonthEnd(year: number, month: number, day: number): number {
   return Math.min(day, maxDay);
 }
 
-export function getNextDueDate(
+/**
+ * Get this month's due date for an account.
+ * For recurring: always returns this month's due date (even if past).
+ * For one-time: returns creation month's due date, or null if past.
+ */
+export function getCurrentDueDate(
   dueDay: number,
   type: "recurring" | "one_time",
   createdAt: string
 ): Date | null {
   const now = new Date();
-  const today = now.getDate();
-  const currentMonth = now.getMonth() + 1; // 1-indexed
+  const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
 
   if (type === "one_time") {
@@ -32,21 +27,45 @@ export function getNextDueDate(
     const createdYear = created.getFullYear();
     const clamped = clampToMonthEnd(createdYear, createdMonth, dueDay);
     const dueDate = new Date(createdYear, createdMonth - 1, clamped);
-
-    // If past due, no more notifications
     if (dueDate < now) return null;
     return dueDate;
   }
 
-  // Recurring: find next occurrence
+  const clamped = clampToMonthEnd(currentYear, currentMonth, dueDay);
+  return new Date(currentYear, currentMonth - 1, clamped);
+}
+
+/**
+ * Get the next future due date for an account.
+ * For recurring: this month if not yet due, otherwise next month.
+ * For one-time: creation month's due date, or null if past.
+ */
+export function getNextDueDate(
+  dueDay: number,
+  type: "recurring" | "one_time",
+  createdAt: string
+): Date | null {
+  const now = new Date();
+  const today = now.getDate();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+
+  if (type === "one_time") {
+    const created = new Date(createdAt);
+    const createdMonth = created.getMonth() + 1;
+    const createdYear = created.getFullYear();
+    const clamped = clampToMonthEnd(createdYear, createdMonth, dueDay);
+    const dueDate = new Date(createdYear, createdMonth - 1, clamped);
+    if (dueDate < now) return null;
+    return dueDate;
+  }
+
   const clamped = clampToMonthEnd(currentYear, currentMonth, dueDay);
 
-  // If due day hasn't passed this month, use this month
   if (today <= clamped) {
     return new Date(currentYear, currentMonth - 1, clamped);
   }
 
-  // Otherwise, next month
   let nextMonth = currentMonth + 1;
   let nextYear = currentYear;
   if (nextMonth > 12) {
@@ -58,8 +77,8 @@ export function getNextDueDate(
 }
 
 /**
- * Calculate days until the next due date.
- * Returns negative number if overdue.
+ * Calculate days until the due date.
+ * Returns negative number if overdue (past due date and unpaid).
  * Returns null if no due date (one-time past due).
  */
 export function getDaysUntilDue(
@@ -67,20 +86,19 @@ export function getDaysUntilDue(
   type: "recurring" | "one_time",
   createdAt: string
 ): number | null {
-  const nextDue = getNextDueDate(dueDay, type, createdAt);
-  if (!nextDue) return null;
+  const dueDate = getCurrentDueDate(dueDay, type, createdAt);
+  if (!dueDate) return null;
 
   const now = new Date();
-  // Reset time parts for accurate day comparison
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const due = new Date(nextDue.getFullYear(), nextDue.getMonth(), nextDue.getDate());
+  const due = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
 
   const diffMs = due.getTime() - today.getTime();
   return Math.round(diffMs / (1000 * 60 * 60 * 24));
 }
 
 /**
- * Get the current billing cycle year/month for an account.
+ * Get the billing cycle year/month for the current due date.
  * For recurring: current month/year.
  * For one-time: creation month/year.
  */

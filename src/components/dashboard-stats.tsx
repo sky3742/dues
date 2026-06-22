@@ -1,7 +1,7 @@
 import { createDb } from "@/lib/db";
 import { accounts, payments } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
-import { getDaysUntilDue, getCurrentCycle } from "@/lib/utils";
+import { getDaysUntilDue, getNextDueDate } from "@/lib/utils";
 
 export async function DashboardStats() {
   const db = createDb();
@@ -15,7 +15,11 @@ export async function DashboardStats() {
     if (!account.isActive) continue;
 
     const daysUntilDue = getDaysUntilDue(account.dueDay, account.type, account.createdAt);
-    const cycle = getCurrentCycle(account.type, account.createdAt);
+
+    const nextDue = getNextDueDate(account.dueDay, account.type, account.createdAt);
+    const cycle = nextDue
+      ? { year: nextDue.getFullYear(), month: nextDue.getMonth() + 1 }
+      : { year: new Date().getFullYear(), month: new Date().getMonth() + 1 };
 
     const [payment] = await db
       .select()

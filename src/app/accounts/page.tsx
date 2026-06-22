@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { getAccounts } from "@/actions/accounts";
-import { formatDueDate, getCurrentCycle } from "@/lib/utils";
+import { formatDueDate, getCurrentCycle, getNextDueDate } from "@/lib/utils";
 import { DeleteAccountButton } from "@/components/delete-account-button";
 import { PageTransition } from "@/components/page-transition";
 
@@ -40,7 +40,10 @@ export default async function AccountsPage() {
         ) : (
           <div className="grid gap-4">
             {accounts.map((account, index) => {
-              const cycle = getCurrentCycle(account.type, account.createdAt);
+              const nextDue = getNextDueDate(account.dueDay, account.type, account.createdAt);
+              const cycle = nextDue
+                ? { year: nextDue.getFullYear(), month: nextDue.getMonth() + 1 }
+                : getCurrentCycle(account.type, account.createdAt);
               const dueDateStr = formatDueDate(account.dueDay, cycle.year, cycle.month);
 
               return (

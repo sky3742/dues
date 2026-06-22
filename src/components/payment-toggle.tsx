@@ -1,7 +1,7 @@
 "use client";
 
 import { togglePayment } from "@/actions/payments";
-import { getCurrentCycle, getDaysUntilDue } from "@/lib/utils";
+import { getNextDueDate, getDaysUntilDue } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { motion } from "framer-motion";
@@ -31,9 +31,18 @@ export function PaymentToggle({ account, payment }: PaymentToggleProps) {
 
   const isPaid = payment?.paid ?? false;
   const daysUntilDue = getDaysUntilDue(account.dueDay, account.type, account.createdAt);
-  const cycle = getCurrentCycle(account.type, account.createdAt);
+
+  const getNextCycle = () => {
+    const nextDue = getNextDueDate(account.dueDay, account.type, account.createdAt);
+    if (nextDue) {
+      return { year: nextDue.getFullYear(), month: nextDue.getMonth() + 1 };
+    }
+    const now = new Date();
+    return { year: now.getFullYear(), month: now.getMonth() + 1 };
+  };
 
   const handleToggle = async () => {
+    const cycle = getNextCycle();
     startTransition(async () => {
       await togglePayment(account.id, cycle.year, cycle.month);
       router.refresh();
