@@ -6,9 +6,9 @@ test.describe("Dashboard", () => {
   test("shows Add Account link and stats", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: "Add Account" })).toBeVisible();
-    await expect(page.getByText("Overdue")).toBeVisible();
-    await expect(page.getByText("Due Soon")).toBeVisible();
-    await expect(page.getByText("Total")).toBeVisible();
+    await expect(page.getByText("Overdue", { exact: true })).toBeVisible();
+    await expect(page.getByText("Due Soon", { exact: true })).toBeVisible();
+    await expect(page.getByText("Total", { exact: true })).toBeVisible();
   });
 
   test("navigation to create account page", async ({ page }) => {

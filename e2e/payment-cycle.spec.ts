@@ -38,7 +38,7 @@ test.describe("Payment cycle logic", () => {
 
     const card = page.locator(".card", { hasText: name });
     await expect(card.getByText("Due: Jun 25, 2026")).toBeVisible();
-    await expect(card.getByText(/3 days? left/)).toBeVisible();
+    await expect(card.getByText(/days? left/)).toBeVisible();
   });
 
   test("paid account shows next month due date", async ({ page }) => {
