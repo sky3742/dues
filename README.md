@@ -2,6 +2,10 @@
 
 A payment reminder app that tracks recurring and one-time dues with push notifications.
 
+<p align="center">
+  <img src="public/screenshot-mobile.png" alt="Dashboard mobile view" width="360" />
+</p>
+
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router)
