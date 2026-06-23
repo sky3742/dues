@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 31536000;
 
 import Link from "next/link";
 import { getAccounts } from "@/actions/accounts";
