@@ -46,7 +46,7 @@ export default async function AccountsPage() {
             </div>
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             {accounts.map((account, index) => {
               const nextDue = getNextDueDate(account.dueDay, account.type, account.createdAt);
               const cycle = nextDue
@@ -59,25 +59,23 @@ export default async function AccountsPage() {
               return (
                 <div
                   key={account.id}
-                  className={`stagger-item card bg-base-100 shadow-sm card-hover border border-base-300/50 border-l-4 ${border} ${
+                  className={`stagger-item card bg-base-100 shadow-sm border border-base-300/50 border-l-4 ${border} ${
                     !account.isActive ? "opacity-60" : ""
                   }`}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <div className="card-body p-3 sm:p-4">
+                  <div className="card-body p-3">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <h3 className="font-semibold truncate">{account.name}</h3>
                         {!account.isActive && (
                           <span className="badge badge-ghost badge-xs">Inactive</span>
                         )}
+                        <span className="text-xs text-base-content/40">
+                          {account.type === "recurring" ? "Monthly" : "One-time"} · Remind{" "}
+                          {account.reminderDays}d
+                        </span>
                       </div>
-                    </div>
-                    <div className="flex items-center justify-between gap-2 text-sm text-base-content/60">
-                      <span className="truncate">
-                        Due: {dueDateStr} • {account.type === "recurring" ? "Monthly" : "One-time"}{" "}
-                        • Remind {account.reminderDays}d before
-                      </span>
                       <div className="flex items-center gap-1 shrink-0">
                         <Link
                           href={`/accounts/${account.id}/edit`}
@@ -88,6 +86,7 @@ export default async function AccountsPage() {
                         <DeleteAccountButton accountId={account.id} accountName={account.name} />
                       </div>
                     </div>
+                    <div className="text-sm text-base-content/60">{dueDateStr}</div>
                   </div>
                 </div>
               );

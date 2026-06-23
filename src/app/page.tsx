@@ -137,33 +137,35 @@ export default async function Home() {
 
                 let statusText = "";
                 if (account.isPaid) {
-                  statusText = account.nextDueDateStr
-                    ? `Paid — next due ${account.nextDueDateStr}`
-                    : "Paid";
+                  statusText = "";
                 } else if (account.daysUntilDue === null) {
                   statusText = "Past due";
                 } else if (account.daysUntilDue < 0) {
                   const overdueDays = Math.abs(account.daysUntilDue);
-                  statusText = `Overdue by ${overdueDays} day${overdueDays === 1 ? "" : "s"}`;
+                  statusText = `${overdueDays}d overdue`;
                 } else if (account.daysUntilDue === 0) {
                   statusText = "Due today";
                 } else {
-                  statusText = `${account.daysUntilDue} day${account.daysUntilDue === 1 ? "" : "s"} left`;
+                  statusText = `${account.daysUntilDue}d left`;
                 }
 
-                const dueDateStr = formatDueDate(
-                  account.dueDay,
-                  account.cycle.year,
-                  account.cycle.month
-                );
+                const dueDateStr =
+                  account.isPaid && account.nextDueDateStr
+                    ? account.nextDueDateStr
+                    : formatDueDate(account.dueDay, account.cycle.year, account.cycle.month);
 
                 return (
                   <div
                     key={account.id}
-                    className={`stagger-item card bg-base-100 shadow-sm card-hover border border-base-300/50 border-l-4 ${urgency.border}`}
+                    className={`stagger-item card bg-base-100 shadow-sm card-hover border border-base-300/50 border-l-4 ${urgency.border} relative`}
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <div className="card-body p-3 sm:p-4">
+                    <Link
+                      href={`/accounts/${account.id}/edit`}
+                      className="absolute inset-0 z-0 rounded-box"
+                      aria-label={`Edit ${account.name}`}
+                    />
+                    <div className="card-body p-3 sm:p-4 relative z-10 pointer-events-none">
                       <div className="flex items-center justify-between gap-2">
                         <h3 className="font-semibold truncate">{account.name}</h3>
                         <span className={`text-sm font-medium ${urgency.color} shrink-0`}>
@@ -171,21 +173,12 @@ export default async function Home() {
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-2 text-sm text-base-content/60">
-                        <span className="truncate">
-                          Due: {dueDateStr} •{" "}
-                          {account.type === "recurring" ? "Monthly" : "One-time"}
-                        </span>
-                        <div className="flex items-center gap-1 shrink-0">
+                        <span className="truncate">{dueDateStr}</span>
+                        <div className="shrink-0 pointer-events-auto">
                           <PaymentToggle
                             account={account}
                             payment={account.isPaid ? { paid: true } : null}
                           />
-                          <Link
-                            href={`/accounts/${account.id}/edit`}
-                            className="btn btn-ghost btn-xs"
-                          >
-                            Edit
-                          </Link>
                         </div>
                       </div>
                     </div>
