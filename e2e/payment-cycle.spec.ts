@@ -16,12 +16,12 @@ test.describe("Payment cycle logic", () => {
     await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
 
     const card = page.locator(".card", { hasText: name });
-    await expect(card.getByText(/Overdue/)).toBeVisible();
-    await expect(card.getByText("Due: Jun 15, 2026")).toBeVisible();
+    await expect(card.getByText(/overdue/)).toBeVisible();
+    await expect(card.getByText("Jun 15, 2026")).toBeVisible();
 
     await card.getByRole("button", { name: "Mark Paid" }).click();
     await expect(card.getByRole("button", { name: "Paid" })).toBeVisible();
-    await expect(card.getByText("Paid — next due Jul 15, 2026")).toBeVisible();
+    await expect(card.getByText("Jul 15, 2026")).toBeVisible();
   });
 
   test("account due in future shows countdown", async ({ page }) => {
@@ -37,8 +37,8 @@ test.describe("Payment cycle logic", () => {
     await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
 
     const card = page.locator(".card", { hasText: name });
-    await expect(card.getByText("Due: Jun 25, 2026")).toBeVisible();
-    await expect(card.getByText(/days? left/)).toBeVisible();
+    await expect(card.getByText("Jun 25, 2026")).toBeVisible();
+    await expect(card.getByText(/\d+d left/)).toBeVisible();
   });
 
   test("paid account shows next month due date", async ({ page }) => {
@@ -56,7 +56,7 @@ test.describe("Payment cycle logic", () => {
     const card = page.locator(".card", { hasText: name });
     await card.getByRole("button", { name: "Mark Paid" }).click();
     await expect(card.getByRole("button", { name: "Paid" })).toBeVisible();
-    await expect(card.getByText("Paid — next due Jul 25, 2026")).toBeVisible();
+    await expect(card.getByText("Jul 25, 2026")).toBeVisible();
   });
 
   test("can toggle paid off and back on", async ({ page }) => {
