@@ -14,15 +14,14 @@ import { PageTransition } from "@/components/page-transition";
 function getUrgencyConfig(
   isPaid: boolean,
   daysUntilDue: number | null
-): { color: string; bg: string; icon: string } {
-  if (isPaid) return { color: "text-success", bg: "bg-success/10", icon: "✅" };
-  if (daysUntilDue === null)
-    return { color: "text-base-content/50", bg: "bg-base-200", icon: "⏰" };
-  if (daysUntilDue < 0) return { color: "text-error", bg: "bg-error/10", icon: "🚨" };
-  if (daysUntilDue === 0) return { color: "text-error", bg: "bg-error/10", icon: "⚡" };
-  if (daysUntilDue <= 3) return { color: "text-warning", bg: "bg-warning/10", icon: "⚠️" };
-  if (daysUntilDue <= 7) return { color: "text-orange-500", bg: "bg-orange-500/10", icon: "🔶" };
-  return { color: "text-info", bg: "bg-info/10", icon: "🔵" };
+): { color: string; border: string } {
+  if (isPaid) return { color: "text-success", border: "border-success" };
+  if (daysUntilDue === null) return { color: "text-base-content/50", border: "border-base-300" };
+  if (daysUntilDue < 0) return { color: "text-error", border: "border-error" };
+  if (daysUntilDue === 0) return { color: "text-error", border: "border-error" };
+  if (daysUntilDue <= 3) return { color: "text-warning", border: "border-warning" };
+  if (daysUntilDue <= 7) return { color: "text-orange-500", border: "border-orange-500" };
+  return { color: "text-info", border: "border-info" };
 }
 
 export default async function Home() {
@@ -161,34 +160,29 @@ export default async function Home() {
                 return (
                   <div
                     key={account.id}
-                    className={`stagger-item card bg-base-100 shadow-sm card-hover ${urgency.bg} border border-base-300/50`}
+                    className={`stagger-item card bg-base-100 shadow-sm card-hover border border-base-300/50 border-l-4 ${urgency.border}`}
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <div className="card-body p-4 sm:p-5">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex items-start gap-3">
-                          <span className="text-2xl mt-0.5">{urgency.icon}</span>
-                          <div>
-                            <h3 className="font-semibold text-lg">{account.name}</h3>
-                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-base-content/60">
-                              <span>Due: {dueDateStr}</span>
-                              <span className="hidden sm:inline">•</span>
-                              <span>{account.type === "recurring" ? "Monthly" : "One-time"}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 ml-9 sm:ml-0">
-                          <span className={`text-sm font-medium ${urgency.color}`}>
-                            {statusText}
-                          </span>
+                    <div className="card-body p-3 sm:p-4">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="font-semibold truncate">{account.name}</h3>
+                        <span className={`text-sm font-medium ${urgency.color} shrink-0`}>
+                          {statusText}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2 text-sm text-base-content/60">
+                        <span className="truncate">
+                          Due: {dueDateStr} •{" "}
+                          {account.type === "recurring" ? "Monthly" : "One-time"}
+                        </span>
+                        <div className="flex items-center gap-1 shrink-0">
                           <PaymentToggle
                             account={account}
                             payment={account.isPaid ? { paid: true } : null}
                           />
                           <Link
                             href={`/accounts/${account.id}/edit`}
-                            className="btn btn-ghost btn-sm"
+                            className="btn btn-ghost btn-xs"
                           >
                             Edit
                           </Link>

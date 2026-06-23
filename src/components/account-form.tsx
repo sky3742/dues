@@ -85,7 +85,7 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
           <option value="one_time">One-time</option>
         </select>
         <label className="label">
-          <span className="label-text-alt text-base-content/50">
+          <span className="label-text-alt text-base-content/50 text-wrap">
             Recurring repeats each month, one-time is a single payment
           </span>
         </label>

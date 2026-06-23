@@ -2,9 +2,17 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { getAccounts } from "@/actions/accounts";
-import { formatDueDate, getCurrentCycle, getNextDueDate } from "@/lib/utils";
+import { getDaysUntilDue, formatDueDate, getCurrentCycle, getNextDueDate } from "@/lib/utils";
 import { DeleteAccountButton } from "@/components/delete-account-button";
 import { PageTransition } from "@/components/page-transition";
+
+function getUrgencyBorder(isActive: boolean, daysUntilDue: number | null): string {
+  if (!isActive) return "border-base-300";
+  if (daysUntilDue === null) return "border-base-300";
+  if (daysUntilDue < 0) return "border-error";
+  if (daysUntilDue <= 3) return "border-warning";
+  return "border-info";
+}
 
 export default async function AccountsPage() {
   const accounts = await getAccounts();
@@ -45,42 +53,35 @@ export default async function AccountsPage() {
                 ? { year: nextDue.getFullYear(), month: nextDue.getMonth() + 1 }
                 : getCurrentCycle(account.type, account.createdAt);
               const dueDateStr = formatDueDate(account.dueDay, cycle.year, cycle.month);
+              const daysUntilDue = getDaysUntilDue(account.dueDay, account.type, account.createdAt);
+              const border = getUrgencyBorder(account.isActive, daysUntilDue);
 
               return (
                 <div
                   key={account.id}
-                  className={`stagger-item card bg-base-100 shadow-sm card-hover border border-base-300/50 ${
+                  className={`stagger-item card bg-base-100 shadow-sm card-hover border border-base-300/50 border-l-4 ${border} ${
                     !account.isActive ? "opacity-60" : ""
                   }`}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <div className="card-body p-4 sm:p-5">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                          {account.type === "recurring" ? "🔄" : "📝"}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-lg">{account.name}</h3>
-                            {!account.isActive && (
-                              <span className="badge badge-ghost badge-sm">Inactive</span>
-                            )}
-                          </div>
-                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-base-content/60">
-                            <span>Due: {dueDateStr}</span>
-                            <span className="hidden sm:inline">•</span>
-                            <span>{account.type === "recurring" ? "Monthly" : "One-time"}</span>
-                            <span className="hidden sm:inline">•</span>
-                            <span>Remind {account.reminderDays}d before</span>
-                          </div>
-                        </div>
+                  <div className="card-body p-3 sm:p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <h3 className="font-semibold truncate">{account.name}</h3>
+                        {!account.isActive && (
+                          <span className="badge badge-ghost badge-xs">Inactive</span>
+                        )}
                       </div>
-
-                      <div className="flex items-center gap-1 ml-13 sm:ml-0">
+                    </div>
+                    <div className="flex items-center justify-between gap-2 text-sm text-base-content/60">
+                      <span className="truncate">
+                        Due: {dueDateStr} • {account.type === "recurring" ? "Monthly" : "One-time"}{" "}
+                        • Remind {account.reminderDays}d before
+                      </span>
+                      <div className="flex items-center gap-1 shrink-0">
                         <Link
                           href={`/accounts/${account.id}/edit`}
-                          className="btn btn-ghost btn-sm"
+                          className="btn btn-ghost btn-xs"
                         >
                           Edit
                         </Link>
