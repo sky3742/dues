@@ -7,6 +7,7 @@ import { createDb } from "@/lib/db";
 import { payments } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { DashboardStats } from "@/components/dashboard-stats";
+import { PushAlert } from "@/components/push-alert";
 import { PushSubscribe } from "@/components/push-subscribe";
 import { PaymentToggle } from "@/components/payment-toggle";
 import { PageTransition } from "@/components/page-transition";
@@ -102,6 +103,8 @@ export default async function Home() {
           <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
           <p className="text-base-content/60">Track your upcoming payments and dues</p>
         </div>
+
+        <PushAlert />
 
         <div className="mb-8">
           <DashboardStats />
