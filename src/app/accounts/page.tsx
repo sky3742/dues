@@ -2,17 +2,8 @@ export const revalidate = 31536000;
 
 import Link from "next/link";
 import { getAccounts } from "@/actions/accounts";
-import { getDaysUntilDue, formatDueDate, getCurrentCycle, getNextDueDate } from "@/lib/utils";
 import { DeleteAccountButton } from "@/components/delete-account-button";
 import { PageTransition } from "@/components/page-transition";
-
-function getUrgencyBorder(isActive: boolean, daysUntilDue: number | null): string {
-  if (!isActive) return "border-base-300";
-  if (daysUntilDue === null) return "border-base-300";
-  if (daysUntilDue < 0) return "border-error";
-  if (daysUntilDue <= 3) return "border-warning";
-  return "border-info";
-}
 
 export default async function AccountsPage() {
   const accounts = await getAccounts();
@@ -47,50 +38,38 @@ export default async function AccountsPage() {
           </div>
         ) : (
           <div className="grid gap-3">
-            {accounts.map((account, index) => {
-              const nextDue = getNextDueDate(account.dueDay, account.type, account.createdAt);
-              const cycle = nextDue
-                ? { year: nextDue.getFullYear(), month: nextDue.getMonth() + 1 }
-                : getCurrentCycle(account.type, account.createdAt);
-              const dueDateStr = formatDueDate(account.dueDay, cycle.year, cycle.month);
-              const daysUntilDue = getDaysUntilDue(account.dueDay, account.type, account.createdAt);
-              const border = getUrgencyBorder(account.isActive, daysUntilDue);
-
-              return (
-                <div
-                  key={account.id}
-                  className={`stagger-item card bg-base-100 shadow-sm border border-base-300/50 border-l-4 ${border} ${
-                    !account.isActive ? "opacity-60" : ""
-                  }`}
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <div className="card-body p-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
+            {accounts.map((account, index) => (
+              <div
+                key={account.id}
+                className={`stagger-item card bg-base-100 shadow-sm border border-base-300/50 ${
+                  !account.isActive ? "opacity-60" : ""
+                }`}
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="card-body p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
                         <h3 className="font-semibold truncate">{account.name}</h3>
                         {!account.isActive && (
                           <span className="badge badge-ghost badge-xs">Inactive</span>
                         )}
-                        <span className="text-xs text-base-content/40">
-                          {account.type === "recurring" ? "Monthly" : "One-time"} · Remind{" "}
-                          {account.reminderDays}d
-                        </span>
                       </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <Link
-                          href={`/accounts/${account.id}/edit`}
-                          className="btn btn-ghost btn-xs"
-                        >
-                          Edit
-                        </Link>
-                        <DeleteAccountButton accountId={account.id} accountName={account.name} />
+                      <div className="text-sm text-base-content/60 mt-0.5">
+                        {account.type === "recurring" ? "Monthly" : "One-time"} · Due day{" "}
+                        {account.dueDay} · Remind {account.reminderDays}d before
                       </div>
                     </div>
-                    <div className="text-sm text-base-content/60">{dueDateStr}</div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Link href={`/accounts/${account.id}/edit`} className="btn btn-ghost btn-xs">
+                        Edit
+                      </Link>
+                      <DeleteAccountButton accountId={account.id} accountName={account.name} />
+                    </div>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
       </div>
