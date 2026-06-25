@@ -48,17 +48,11 @@ export default async function AccountsPage() {
               >
                 <div className="card-body p-3">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold truncate">{account.name}</h3>
-                        {!account.isActive && (
-                          <span className="badge badge-ghost badge-xs">Inactive</span>
-                        )}
-                      </div>
-                      <div className="text-sm text-base-content/60 mt-0.5">
-                        {account.type === "recurring" ? "Monthly" : "One-time"} · Due day{" "}
-                        {account.dueDay} · Remind {account.reminderDays}d before
-                      </div>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <h3 className="font-semibold truncate">{account.name}</h3>
+                      <span className="text-sm text-base-content/60 shrink-0">
+                        {account.type === "recurring" ? "Monthly" : "One-time"}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                       <Link href={`/accounts/${account.id}/edit`} className="btn btn-ghost btn-xs">
@@ -66,6 +60,9 @@ export default async function AccountsPage() {
                       </Link>
                       <DeleteAccountButton accountId={account.id} accountName={account.name} />
                     </div>
+                  </div>
+                  <div className="text-sm text-base-content/60">
+                    Due day {account.dueDay} · Remind {account.reminderDays}d before
                   </div>
                 </div>
               </div>

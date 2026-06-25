@@ -106,7 +106,7 @@ export async function toggleAccountActive(id: string) {
 
 export async function getAccounts() {
   const db = createDb();
-  const allAccounts = await db.select().from(accounts);
+  const allAccounts = await db.select().from(accounts).orderBy(accounts.name);
   return allAccounts;
 }
 
