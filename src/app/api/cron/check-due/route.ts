@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createDb } from "@/lib/db";
 import { accounts, pushSubscriptions } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -71,6 +72,8 @@ export async function GET(request: Request) {
 
       notificationsSent += sent;
     }
+
+    revalidatePath("/");
 
     return NextResponse.json({
       accountsChecked: activeAccounts.length,

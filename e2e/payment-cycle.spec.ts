@@ -4,13 +4,12 @@ const ts = Date.now();
 const today = new Date();
 const dayOfMonth = today.getDate();
 
-// overdue: dueDay is in the past AND nextDue is >20 days away (outside statement window)
-// e.g. if today is Jun 25, dueDay=16 → Jun 16 is past, Jul 16 is 21 days away → overdue
+// overdue: dueDay in the past AND next occurrence >20 days away (outside statement window)
+// e.g. today Jun 30, dueDay=28 → Jun 28 is past, Jul 28 is 28 days away → overdue
 const overdueDueDay = dayOfMonth > 1 ? dayOfMonth - 1 : 1;
-const overdueNextDueDays = 31; // always >20
 
-// future: dueDay is tomorrow and within statement window
-const futureDueDay = dayOfMonth < 28 ? dayOfMonth + 1 : 28;
+// future: dueDay=1 always works — nextDue becomes next month's 1st, always within statement window
+const futureDueDay = 1;
 
 // paid: same as future
 const paidDueDay = futureDueDay;
