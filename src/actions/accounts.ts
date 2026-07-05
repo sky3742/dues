@@ -4,32 +4,26 @@ import { createDb } from "@/lib/db";
 import { accounts } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { accountSchema, type AccountInput } from "@/lib/schemas";
 
-export type CreateAccountInput = {
-  name: string;
-  type: "recurring" | "one_time";
-  dueDay: number;
-  reminderDays?: number;
-};
+export type CreateAccountInput = AccountInput;
 
-export type UpdateAccountInput = Partial<CreateAccountInput> & { id: string };
+export type UpdateAccountInput = Partial<AccountInput> & { id: string };
 
 export async function createAccount(input: CreateAccountInput) {
-  if (!input.name || input.name.trim().length === 0) {
-    return { error: "Name is required" };
-  }
-  if (input.dueDay < 1 || input.dueDay > 31) {
-    return { error: "Due day must be between 1 and 31" };
+  const result = accountSchema.safeParse(input);
+  if (!result.success) {
+    return { error: result.error.issues[0].message };
   }
 
   const db = createDb();
   const [account] = await db
     .insert(accounts)
     .values({
-      name: input.name.trim(),
-      type: input.type,
-      dueDay: input.dueDay,
-      reminderDays: input.reminderDays ?? 3,
+      name: result.data.name.trim(),
+      type: result.data.type,
+      dueDay: result.data.dueDay,
+      reminderDays: result.data.reminderDays ?? 3,
     })
     .returning();
 
@@ -41,19 +35,17 @@ export async function createAccount(input: CreateAccountInput) {
 export async function updateAccount(input: UpdateAccountInput) {
   const { id, ...updates } = input;
 
-  if (updates.name !== undefined && updates.name.trim().length === 0) {
-    return { error: "Name cannot be empty" };
-  }
-  if (updates.dueDay !== undefined && (updates.dueDay < 1 || updates.dueDay > 31)) {
-    return { error: "Due day must be between 1 and 31" };
+  const result = accountSchema.partial().safeParse(updates);
+  if (!result.success) {
+    return { error: result.error.issues[0].message };
   }
 
   const db = createDb();
   const [account] = await db
     .update(accounts)
     .set({
-      ...updates,
-      name: updates.name?.trim(),
+      ...result.data,
+      name: result.data.name?.trim(),
       updatedAt: new Date().toISOString(),
     })
     .where(eq(accounts.id, id))

@@ -3,37 +3,36 @@
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { motion } from "framer-motion";
-
-type Account = {
-  id?: string;
-  name: string;
-  type: "recurring" | "one_time";
-  dueDay: number;
-  reminderDays: number;
-};
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { accountSchema, type AccountInput } from "@/lib/schemas";
 
 type AccountFormProps = {
-  account?: Account;
-  onSubmit: (data: Account) => Promise<{ error?: string }>;
+  account?: AccountInput & { id?: string };
+  onSubmit: (data: AccountInput) => Promise<{ error?: string }>;
 };
 
 export function AccountForm({ account, onSubmit }: AccountFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AccountInput>({
+    resolver: zodResolver(accountSchema),
+    defaultValues: {
+      name: account?.name ?? "",
+      type: account?.type ?? "recurring",
+      dueDay: account?.dueDay ?? 1,
+      reminderDays: account?.reminderDays ?? 3,
+    },
+  });
 
+  const onFormSubmit = (data: AccountInput) => {
     startTransition(async () => {
-      const result = await onSubmit({
-        id: account?.id,
-        name: formData.get("name") as string,
-        type: formData.get("type") as "recurring" | "one_time",
-        dueDay: parseInt(formData.get("dueDay") as string, 10),
-        reminderDays: parseInt(formData.get("reminderDays") as string, 10),
-      });
-
+      const result = await onSubmit(data);
       if (result.error) {
         alert(result.error);
       } else {
@@ -43,7 +42,7 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-5">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -54,17 +53,22 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
         </label>
         <input
           type="text"
-          name="name"
-          defaultValue={account?.name}
           placeholder="e.g. Rent, Internet, Netflix"
-          className="input input-bordered w-full focus:input-primary transition-colors"
-          required
+          className={`input input-bordered w-full focus:input-primary transition-colors ${errors.name ? "input-error" : ""}`}
+          {...register("name")}
         />
-        <label className="label">
-          <span className="label-text-alt text-base-content/50">
-            A name to identify this payment
-          </span>
-        </label>
+        {errors.name && (
+          <label className="label">
+            <span className="label-text-alt text-error">{errors.name.message}</span>
+          </label>
+        )}
+        {!errors.name && (
+          <label className="label">
+            <span className="label-text-alt text-base-content/50">
+              A name to identify this payment
+            </span>
+          </label>
+        )}
       </motion.div>
 
       <motion.div
@@ -76,9 +80,8 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
           <span className="label-text font-medium">Type</span>
         </label>
         <select
-          name="type"
-          defaultValue={account?.type ?? "recurring"}
           className="select select-bordered w-full focus:select-primary transition-colors"
+          {...register("type")}
         >
           <option value="recurring">Recurring (monthly)</option>
           <option value="one_time">One-time</option>
@@ -101,16 +104,20 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
           </label>
           <input
             type="number"
-            name="dueDay"
-            defaultValue={account?.dueDay ?? 1}
             min={1}
             max={31}
-            className="input input-bordered w-full focus:input-primary transition-colors"
-            required
+            className={`input input-bordered w-full focus:input-primary transition-colors ${errors.dueDay ? "input-error" : ""}`}
+            {...register("dueDay", { valueAsNumber: true })}
           />
-          <label className="label">
-            <span className="label-text-alt text-base-content/50">1-31</span>
-          </label>
+          {errors.dueDay ? (
+            <label className="label">
+              <span className="label-text-alt text-error">{errors.dueDay.message}</span>
+            </label>
+          ) : (
+            <label className="label">
+              <span className="label-text-alt text-base-content/50">1-31</span>
+            </label>
+          )}
         </motion.div>
 
         <motion.div
@@ -123,16 +130,20 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
           </label>
           <input
             type="number"
-            name="reminderDays"
-            defaultValue={account?.reminderDays ?? 3}
             min={0}
             max={30}
-            className="input input-bordered w-full focus:input-primary transition-colors"
-            required
+            className={`input input-bordered w-full focus:input-primary transition-colors ${errors.reminderDays ? "input-error" : ""}`}
+            {...register("reminderDays", { valueAsNumber: true })}
           />
-          <label className="label">
-            <span className="label-text-alt text-base-content/50">Days before due</span>
-          </label>
+          {errors.reminderDays ? (
+            <label className="label">
+              <span className="label-text-alt text-error">{errors.reminderDays.message}</span>
+            </label>
+          ) : (
+            <label className="label">
+              <span className="label-text-alt text-base-content/50">Days before due</span>
+            </label>
+          )}
         </motion.div>
       </div>
 
