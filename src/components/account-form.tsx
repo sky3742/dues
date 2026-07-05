@@ -38,7 +38,6 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
         alert(result.error);
       } else {
         router.push("/accounts");
-        router.refresh();
       }
     });
   };

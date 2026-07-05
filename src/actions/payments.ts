@@ -4,7 +4,6 @@ import { createDb } from "@/lib/db";
 import { payments } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { after } from "next/server";
 
 export async function togglePayment(accountId: string, year: number, month: number) {
   const db = createDb();
@@ -29,7 +28,7 @@ export async function togglePayment(accountId: string, year: number, month: numb
       .where(eq(payments.id, existing.id))
       .returning();
 
-    after(() => revalidatePath("/"));
+    revalidatePath("/");
     return { data: updated };
   }
 
@@ -45,7 +44,7 @@ export async function togglePayment(accountId: string, year: number, month: numb
     })
     .returning();
 
-  after(() => revalidatePath("/"));
+  revalidatePath("/");
   return { data: created };
 }
 
