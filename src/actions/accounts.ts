@@ -4,6 +4,7 @@ import { createDb } from "@/lib/db";
 import { accounts } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 
 export type CreateAccountInput = {
   name: string;
@@ -33,8 +34,10 @@ export async function createAccount(input: CreateAccountInput) {
     })
     .returning();
 
-  revalidatePath("/");
-  revalidatePath("/accounts");
+  after(() => {
+    revalidatePath("/");
+    revalidatePath("/accounts");
+  });
   return { data: account };
 }
 
@@ -63,9 +66,11 @@ export async function updateAccount(input: UpdateAccountInput) {
     return { error: "Account not found" };
   }
 
-  revalidatePath("/");
-  revalidatePath("/accounts");
-  revalidatePath(`/accounts/${id}/edit`);
+  after(() => {
+    revalidatePath("/");
+    revalidatePath("/accounts");
+    revalidatePath(`/accounts/${id}/edit`);
+  });
   return { data: account };
 }
 
@@ -77,8 +82,10 @@ export async function deleteAccount(id: string) {
     return { error: "Account not found" };
   }
 
-  revalidatePath("/");
-  revalidatePath("/accounts");
+  after(() => {
+    revalidatePath("/");
+    revalidatePath("/accounts");
+  });
   return { data: account };
 }
 
@@ -99,8 +106,10 @@ export async function toggleAccountActive(id: string) {
     .where(eq(accounts.id, id))
     .returning();
 
-  revalidatePath("/");
-  revalidatePath("/accounts");
+  after(() => {
+    revalidatePath("/");
+    revalidatePath("/accounts");
+  });
   return { data: account };
 }
 
