@@ -108,7 +108,7 @@ export default async function Home() {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Upcoming Dues</h2>
-            <Link href="/accounts/new" className="btn btn-primary btn-sm gap-1">
+            <Link href="/accounts/new" className="btn btn-primary btn-sm gap-1" prefetch={false}>
               <span className="text-lg leading-none">+</span>
               <span>Add Account</span>
             </Link>
@@ -122,7 +122,7 @@ export default async function Home() {
                 <p className="text-base-content/60 mb-6 max-w-sm">
                   Create your first account to start tracking payments and receive timely reminders.
                 </p>
-                <Link href="/accounts/new" className="btn btn-primary gap-2">
+                <Link href="/accounts/new" className="btn btn-primary gap-2" prefetch={false}>
                   <span className="text-lg">+</span>
                   Create Your First Account
                 </Link>
@@ -162,6 +162,7 @@ export default async function Home() {
                       href={`/accounts/${account.id}/edit`}
                       className="absolute inset-0 z-0 rounded-box"
                       aria-label={`Edit ${account.name}`}
+                      prefetch={false}
                     />
                     <div className="card-body p-3 sm:p-4 relative z-10 pointer-events-none">
                       <div className="flex items-center justify-between gap-2">

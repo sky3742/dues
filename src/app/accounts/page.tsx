@@ -16,7 +16,7 @@ export default async function AccountsPage() {
             <h1 className="text-3xl font-bold mb-2">Accounts</h1>
             <p className="text-base-content/60">Manage your payment accounts</p>
           </div>
-          <Link href="/accounts/new" className="btn btn-primary btn-sm gap-1">
+          <Link href="/accounts/new" className="btn btn-primary btn-sm gap-1" prefetch={false}>
             <span className="text-lg leading-none">+</span>
             <span>Add Account</span>
           </Link>
@@ -30,7 +30,7 @@ export default async function AccountsPage() {
               <p className="text-base-content/60 mb-6 max-w-sm">
                 Create your first account to start tracking payments and receive timely reminders.
               </p>
-              <Link href="/accounts/new" className="btn btn-primary gap-2">
+              <Link href="/accounts/new" className="btn btn-primary gap-2" prefetch={false}>
                 <span className="text-lg">+</span>
                 Create Your First Account
               </Link>
@@ -55,7 +55,11 @@ export default async function AccountsPage() {
                       </span>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <Link href={`/accounts/${account.id}/edit`} className="btn btn-ghost btn-xs">
+                      <Link
+                        href={`/accounts/${account.id}/edit`}
+                        className="btn btn-ghost btn-xs"
+                        prefetch={false}
+                      >
                         Edit
                       </Link>
                       <DeleteAccountButton accountId={account.id} accountName={account.name} />

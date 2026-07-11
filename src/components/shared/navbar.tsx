@@ -53,6 +53,7 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   data-active={isActive}
+                  prefetch={false}
                   className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-colors z-10 ${
                     isActive
                       ? "text-primary"
