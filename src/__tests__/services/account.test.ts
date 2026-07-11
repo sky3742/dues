@@ -5,8 +5,8 @@ import {
   toggleAccountActive,
   getAccounts,
   getAccount,
-  getDashboardStats,
 } from "@/services/account";
+import { getDashboardStats } from "@/services/dashboard";
 import * as accountsRepo from "@/repositories/accounts";
 import * as paymentsRepo from "@/repositories/payments";
 

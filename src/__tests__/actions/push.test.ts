@@ -1,7 +1,7 @@
 import { subscribeToPush, unsubscribeFromPush } from "@/app/actions/push";
-import * as pushSubscriptionsRepo from "@/repositories/push-subscriptions";
+import * as pushSubscriptionsRepo from "@/repositories/pushSubscriptions";
 
-vi.mock("@/repositories/push-subscriptions");
+vi.mock("@/repositories/pushSubscriptions");
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 const mockRepo = vi.mocked(pushSubscriptionsRepo);

@@ -1,6 +1,8 @@
 "use server";
 
 import * as accountService from "@/services/account";
+import * as dashboardService from "@/services/dashboard";
+import { findPaymentsByAccountIds } from "@/repositories/payments";
 import { revalidatePath } from "next/cache";
 
 export type CreateAccountInput = accountService.CreateAccountInput;
@@ -49,4 +51,12 @@ export async function getAccounts() {
 
 export async function getAccount(id: string) {
   return accountService.getAccount(id);
+}
+
+export async function getDashboardStats() {
+  return dashboardService.getDashboardStats();
+}
+
+export async function getPaymentsForAccounts(accountIds: string[]) {
+  return findPaymentsByAccountIds(accountIds);
 }
