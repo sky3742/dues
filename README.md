@@ -11,7 +11,6 @@ A payment reminder app that tracks recurring and one-time dues with push notific
 - **Framework**: Next.js 16 (App Router)
 - **Database**: Turso (libSQL) with Drizzle ORM
 - **Styling**: Tailwind CSS + DaisyUI
-- **Animations**: Framer Motion
 - **Testing**: Vitest (unit) + Playwright (e2e)
 
 ## Getting Started
@@ -40,9 +39,17 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ```
 src/
-├── app/            # Next.js pages and layouts
-├── components/     # React components
-├── actions/        # Server actions
-├── lib/            # Utilities and DB client
-└── workers/        # Service worker
+├── app/              # Next.js pages, layouts, and server actions
+│   ├── actions/      # Server actions (thin entry points)
+│   ├── accounts/     # Account pages
+│   └── api/          # API routes (cron only)
+├── components/       # React components
+│   ├── shared/       # Reusable UI
+│   ├── accounts/     # Account-specific
+│   └── dashboard/    # Dashboard-specific
+├── db/               # Drizzle schema and client
+├── repositories/     # Data access layer
+├── schemas/          # Zod validation schemas
+├── services/         # Business logic
+└── utils/            # Pure helper functions
 ```
