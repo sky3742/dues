@@ -5,7 +5,7 @@ import {
   getDaysUntilDue,
   getCurrentCycle,
   formatDueDate,
-} from "@/utils";
+} from "@/utils/date";
 
 describe("getCurrentDueDate", () => {
   beforeEach(() => {
