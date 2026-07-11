@@ -1,16 +1,14 @@
 export const revalidate = 86400; // revalidate daily; cron also revalidates at midnight +8
 
 import Link from "next/link";
-import { getAccounts } from "@/actions/accounts";
-import { getDaysUntilDue, formatDueDate, getNextDueDate } from "@/lib/utils";
-import { createDb } from "@/lib/db";
-import { payments } from "@/lib/db/schema";
-import { inArray } from "drizzle-orm";
-import { DashboardStats } from "@/components/dashboard-stats";
-import { PushAlert } from "@/components/push-alert";
-import { PushSubscribe } from "@/components/push-subscribe";
-import { PaymentToggle } from "@/components/payment-toggle";
-import { PageTransition } from "@/components/page-transition";
+import { getAccounts } from "@/app/actions/accounts";
+import { getDaysUntilDue, formatDueDate, getNextDueDate } from "@/utils";
+import { findPaymentsByAccountIds } from "@/repositories/payments";
+import { DashboardStats } from "@/components/dashboard/dashboard-stats";
+import { PushAlert } from "@/components/dashboard/push-alert";
+import { PushSubscribe } from "@/components/dashboard/push-subscribe";
+import { PaymentToggle } from "@/components/dashboard/payment-toggle";
+import { PageTransition } from "@/components/shared/page-transition";
 
 function getUrgencyConfig(
   isPaid: boolean,
@@ -26,7 +24,6 @@ function getUrgencyConfig(
 }
 
 export default async function Home() {
-  const db = createDb();
   const allAccounts = await getAccounts();
   const activeAccounts = allAccounts.filter((a) => a.isActive);
 
@@ -57,9 +54,7 @@ export default async function Home() {
 
   // Batch: single query for all payments across active accounts
   const accountIds = activeAccounts.map((a) => a.id);
-  const allPayments = accountIds.length
-    ? await db.select().from(payments).where(inArray(payments.accountId, accountIds))
-    : [];
+  const allPayments = await findPaymentsByAccountIds(accountIds);
 
   // Index payments by "accountId:year:month" for O(1) lookup
   const paymentMap = new Map(allPayments.map((p) => [`${p.accountId}:${p.year}:${p.month}`, p]));
