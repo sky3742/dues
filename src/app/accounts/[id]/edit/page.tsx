@@ -1,7 +1,7 @@
-import { AccountForm } from "@/components/account-form";
-import { updateAccount, getAccount } from "@/actions/accounts";
+import { AccountForm } from "@/components/accounts/account-form";
+import { updateAccount, getAccount } from "@/app/actions/accounts";
 import { notFound } from "next/navigation";
-import { PageTransition } from "@/components/page-transition";
+import { PageTransition } from "@/components/shared/page-transition";
 
 export default async function EditAccountPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

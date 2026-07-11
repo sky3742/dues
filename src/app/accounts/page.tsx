@@ -1,9 +1,9 @@
 export const revalidate = 31536000;
 
 import Link from "next/link";
-import { getAccounts } from "@/actions/accounts";
-import { DeleteAccountButton } from "@/components/delete-account-button";
-import { PageTransition } from "@/components/page-transition";
+import { getAccounts } from "@/app/actions/accounts";
+import { DeleteAccountButton } from "@/components/accounts/delete-account-button";
+import { PageTransition } from "@/components/shared/page-transition";
 
 export default async function AccountsPage() {
   const accounts = await getAccounts();

@@ -1,8 +1,6 @@
-"use client";
-
-import { AccountForm } from "@/components/account-form";
-import { createAccount } from "@/actions/accounts";
-import { PageTransition } from "@/components/page-transition";
+import { AccountForm } from "@/components/accounts/account-form";
+import { createAccount } from "@/app/actions/accounts";
+import { PageTransition } from "@/components/shared/page-transition";
 
 export default function NewAccountPage() {
   return (
@@ -18,6 +16,7 @@ export default function NewAccountPage() {
             <div className="card-body p-6">
               <AccountForm
                 onSubmit={async (data) => {
+                  "use server";
                   const result = await createAccount({
                     name: data.name,
                     type: data.type,
