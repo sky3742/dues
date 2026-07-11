@@ -4,9 +4,9 @@ import { createDb } from "@/db";
 import { accounts } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { sendPushToAll } from "@/services/push";
-import { getDaysUntilDue, getCurrentCycle } from "@/utils";
+import { getDaysUntilDue, getCurrentCycle } from "@/utils/date";
 import { findPaymentForCycle } from "@/repositories/payments";
-import * as pushSubscriptionsRepo from "@/repositories/push-subscriptions";
+import * as pushSubscriptionsRepo from "@/repositories/pushSubscriptions";
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
