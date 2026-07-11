@@ -42,7 +42,7 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-5">
-      <div className="animate-slide-up" style={{ animationDelay: "100ms" }}>
+      <div>
         <label className="label mb-1.5">
           <span className="label-text font-medium">Name</span>
         </label>
@@ -66,7 +66,7 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
         )}
       </div>
 
-      <div className="animate-slide-up" style={{ animationDelay: "150ms" }}>
+      <div>
         <label className="label mb-1.5">
           <span className="label-text font-medium">Type</span>
         </label>
@@ -85,7 +85,7 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="animate-slide-up" style={{ animationDelay: "200ms" }}>
+        <div>
           <label className="label mb-1.5">
             <span className="label-text font-medium">Due Day</span>
           </label>
@@ -107,7 +107,7 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
           )}
         </div>
 
-        <div className="animate-slide-up" style={{ animationDelay: "250ms" }}>
+        <div>
           <label className="label mb-1.5">
             <span className="label-text font-medium">Remind me</span>
           </label>
@@ -130,10 +130,7 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
         </div>
       </div>
 
-      <div
-        className="animate-slide-up flex gap-3 justify-end mt-4 pt-4 border-t border-base-300"
-        style={{ animationDelay: "300ms" }}
-      >
+      <div className="flex gap-3 justify-end mt-4 pt-4 border-t border-base-300">
         <button
           type="button"
           className="btn btn-ghost"
