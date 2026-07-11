@@ -12,18 +12,7 @@ export default function NewAccountPage() {
 
         <div className="card bg-base-100 shadow-sm">
           <div className="card-body p-6">
-            <AccountForm
-              onSubmit={async (data) => {
-                "use server";
-                const result = await createAccount({
-                  name: data.name,
-                  type: data.type,
-                  dueDay: data.dueDay,
-                  reminderDays: data.reminderDays,
-                });
-                return result;
-              }}
-            />
+            <AccountForm onSubmit={createAccount} />
           </div>
         </div>
       </div>

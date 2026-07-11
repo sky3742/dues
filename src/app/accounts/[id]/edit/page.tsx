@@ -22,17 +22,7 @@ export default async function EditAccountPage({ params }: { params: Promise<{ id
           <div className="card-body p-6">
             <AccountForm
               account={account}
-              onSubmit={async (data) => {
-                "use server";
-                const result = await updateAccount({
-                  id: account.id,
-                  name: data.name,
-                  type: data.type,
-                  dueDay: data.dueDay,
-                  reminderDays: data.reminderDays,
-                });
-                return result;
-              }}
+              onSubmit={updateAccount.bind(null, { id: account.id })}
             />
           </div>
         </div>
