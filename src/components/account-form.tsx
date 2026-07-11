@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { accountSchema, type AccountInput } from "@/lib/schemas";
@@ -43,11 +42,7 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-5">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
+      <div className="animate-slide-up" style={{ animationDelay: "100ms" }}>
         <label className="label mb-1.5">
           <span className="label-text font-medium">Name</span>
         </label>
@@ -69,13 +64,9 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
             </span>
           </label>
         )}
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-      >
+      <div className="animate-slide-up" style={{ animationDelay: "150ms" }}>
         <label className="label mb-1.5">
           <span className="label-text font-medium">Type</span>
         </label>
@@ -91,14 +82,10 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
             Recurring repeats each month, one-time is a single payment
           </span>
         </label>
-      </motion.div>
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div className="animate-slide-up" style={{ animationDelay: "200ms" }}>
           <label className="label mb-1.5">
             <span className="label-text font-medium">Due Day</span>
           </label>
@@ -118,13 +105,9 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
               <span className="label-text-alt text-base-content/50">1-31</span>
             </label>
           )}
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-        >
+        <div className="animate-slide-up" style={{ animationDelay: "250ms" }}>
           <label className="label mb-1.5">
             <span className="label-text font-medium">Remind me</span>
           </label>
@@ -144,14 +127,12 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
               <span className="label-text-alt text-base-content/50">Days before due</span>
             </label>
           )}
-        </motion.div>
+        </div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="flex gap-3 justify-end mt-4 pt-4 border-t border-base-300"
+      <div
+        className="animate-slide-up flex gap-3 justify-end mt-4 pt-4 border-t border-base-300"
+        style={{ animationDelay: "300ms" }}
       >
         <button
           type="button"
@@ -161,13 +142,7 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
         >
           Cancel
         </button>
-        <motion.button
-          type="submit"
-          className="btn btn-primary min-w-[120px]"
-          disabled={isPending}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
+        <button type="submit" className="btn btn-primary min-w-[120px]" disabled={isPending}>
           {isPending ? (
             <span className="loading loading-spinner loading-sm" />
           ) : account?.id ? (
@@ -175,8 +150,8 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
           ) : (
             "Create Account"
           )}
-        </motion.button>
-      </motion.div>
+        </button>
+      </div>
     </form>
   );
 }

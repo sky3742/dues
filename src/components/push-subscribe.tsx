@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -123,10 +122,8 @@ export function PushSubscribe() {
           </p>
         </div>
       </div>
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className={`btn btn-sm ${isSubscribed ? "btn-error" : "btn-primary"}`}
+      <button
+        className={`btn btn-sm active:scale-95 transition-transform ${isSubscribed ? "btn-error" : "btn-primary"}`}
         onClick={isSubscribed ? unsubscribe : subscribe}
         disabled={isLoading}
       >
@@ -137,7 +134,7 @@ export function PushSubscribe() {
         ) : (
           "Enable"
         )}
-      </motion.button>
+      </button>
     </div>
   );
 }

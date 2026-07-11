@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useTransition, useState } from "react";
 import { deleteAccount } from "@/actions/accounts";
-import { motion, AnimatePresence } from "framer-motion";
 
 type DeleteAccountButtonProps = {
   accountId: string;
@@ -25,50 +24,34 @@ export function DeleteAccountButton({ accountId, accountName }: DeleteAccountBut
     });
   };
 
+  if (showConfirm) {
+    return (
+      <div className="flex items-center gap-2 animate-scale-in-up">
+        <span className="text-xs text-error font-medium">Delete {accountName}?</span>
+        <button
+          className="btn btn-error btn-xs active:scale-95 transition-transform"
+          onClick={handleDelete}
+          disabled={isPending}
+        >
+          {isPending ? <span className="loading loading-spinner loading-xs" /> : "Yes"}
+        </button>
+        <button
+          className="btn btn-ghost btn-xs active:scale-95 transition-transform"
+          onClick={() => setShowConfirm(false)}
+          disabled={isPending}
+        >
+          No
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <AnimatePresence mode="wait">
-      {showConfirm ? (
-        <motion.div
-          key="confirm"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          className="flex items-center gap-2"
-        >
-          <span className="text-xs text-error font-medium">Delete {accountName}?</span>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="btn btn-error btn-xs"
-            onClick={handleDelete}
-            disabled={isPending}
-          >
-            {isPending ? <span className="loading loading-spinner loading-xs" /> : "Yes"}
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="btn btn-ghost btn-xs"
-            onClick={() => setShowConfirm(false)}
-            disabled={isPending}
-          >
-            No
-          </motion.button>
-        </motion.div>
-      ) : (
-        <motion.button
-          key="delete"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="btn btn-ghost btn-sm text-error hover:bg-error/10"
-          onClick={() => setShowConfirm(true)}
-        >
-          Delete
-        </motion.button>
-      )}
-    </AnimatePresence>
+    <button
+      className="btn btn-ghost btn-sm text-error hover:bg-error/10 active:scale-95 transition-transform"
+      onClick={() => setShowConfirm(true)}
+    >
+      Delete
+    </button>
   );
 }

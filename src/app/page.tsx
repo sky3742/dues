@@ -5,7 +5,7 @@ import { getAccounts } from "@/actions/accounts";
 import { getDaysUntilDue, formatDueDate, getNextDueDate } from "@/lib/utils";
 import { createDb } from "@/lib/db";
 import { payments } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { inArray } from "drizzle-orm";
 import { DashboardStats } from "@/components/dashboard-stats";
 import { PushAlert } from "@/components/push-alert";
 import { PushSubscribe } from "@/components/push-subscribe";
@@ -28,65 +28,65 @@ function getUrgencyConfig(
 export default async function Home() {
   const db = createDb();
   const allAccounts = await getAccounts();
+  const activeAccounts = allAccounts.filter((a) => a.isActive);
 
-  const accountsWithStatus = await Promise.all(
-    allAccounts
-      .filter((a) => a.isActive)
-      .map(async (account) => {
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const nextDue = getNextDueDate(account.dueDay, account.type, account.createdAt);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-        const daysUntilNextDue = nextDue
-          ? Math.round((nextDue.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-          : null;
-        const inStatementWindow = daysUntilNextDue !== null && daysUntilNextDue <= 20;
+  // Batch: resolve cycle + daysUntilDue for each account
+  const accountMeta = activeAccounts.map((account) => {
+    const nextDue = getNextDueDate(account.dueDay, account.type, account.createdAt);
+    const daysUntilNextDue = nextDue
+      ? Math.round((nextDue.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      : null;
+    const inStatementWindow = daysUntilNextDue !== null && daysUntilNextDue <= 20;
 
-        let cycle: { year: number; month: number };
-        let daysUntilDue: number | null;
+    if (inStatementWindow && nextDue) {
+      return {
+        account,
+        cycle: { year: nextDue.getFullYear(), month: nextDue.getMonth() + 1 },
+        daysUntilDue: daysUntilNextDue,
+      };
+    }
+    return {
+      account,
+      cycle: { year: now.getFullYear(), month: now.getMonth() + 1 },
+      daysUntilDue: getDaysUntilDue(account.dueDay, account.type, account.createdAt),
+    };
+  });
 
-        if (inStatementWindow && nextDue) {
-          cycle = { year: nextDue.getFullYear(), month: nextDue.getMonth() + 1 };
-          daysUntilDue = daysUntilNextDue;
-        } else {
-          cycle = { year: now.getFullYear(), month: now.getMonth() + 1 };
-          daysUntilDue = getDaysUntilDue(account.dueDay, account.type, account.createdAt);
-        }
+  // Batch: single query for all payments across active accounts
+  const accountIds = activeAccounts.map((a) => a.id);
+  const allPayments = accountIds.length
+    ? await db.select().from(payments).where(inArray(payments.accountId, accountIds))
+    : [];
 
-        const [payment] = await db
-          .select()
-          .from(payments)
-          .where(
-            and(
-              eq(payments.accountId, account.id),
-              eq(payments.year, cycle.year),
-              eq(payments.month, cycle.month)
-            )
-          )
-          .limit(1);
+  // Index payments by "accountId:year:month" for O(1) lookup
+  const paymentMap = new Map(allPayments.map((p) => [`${p.accountId}:${p.year}:${p.month}`, p]));
 
-        const isPaid = payment?.paid ?? false;
+  const accountsWithStatus = accountMeta.map(({ account, cycle, daysUntilDue }) => {
+    const payment = paymentMap.get(`${account.id}:${cycle.year}:${cycle.month}`);
+    const isPaid = payment?.paid ?? false;
 
-        let nextDueDateStr: string | null = null;
-        if (isPaid) {
-          let nextMonth = cycle.month + 1;
-          let nextYear = cycle.year;
-          if (nextMonth > 12) {
-            nextMonth = 1;
-            nextYear++;
-          }
-          nextDueDateStr = formatDueDate(account.dueDay, nextYear, nextMonth);
-        }
+    let nextDueDateStr: string | null = null;
+    if (isPaid) {
+      let nextMonth = cycle.month + 1;
+      let nextYear = cycle.year;
+      if (nextMonth > 12) {
+        nextMonth = 1;
+        nextYear++;
+      }
+      nextDueDateStr = formatDueDate(account.dueDay, nextYear, nextMonth);
+    }
 
-        return {
-          ...account,
-          daysUntilDue,
-          isPaid,
-          cycle,
-          nextDueDateStr,
-        };
-      })
-  );
+    return {
+      ...account,
+      daysUntilDue,
+      isPaid,
+      cycle,
+      nextDueDateStr,
+    };
+  });
 
   accountsWithStatus.sort((a, b) => {
     if (a.isPaid && !b.isPaid) return 1;

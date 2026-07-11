@@ -5,7 +5,7 @@ import { accounts, pushSubscriptions } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { sendPushToAll } from "@/lib/push";
 import { getDaysUntilDue, getCurrentCycle } from "@/lib/utils";
-import { getPaymentForCycle } from "@/actions/payments";
+import { getPaymentForCycle } from "@/lib/queries";
 
 export async function GET(request: Request) {
   // Verify cron secret
