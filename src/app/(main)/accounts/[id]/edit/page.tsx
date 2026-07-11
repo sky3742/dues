@@ -1,8 +1,15 @@
-import { AccountForm } from "@/components/accounts/account-form";
+import { AccountForm } from "@/components/accounts/AccountForm";
 import { updateAccount, getAccount } from "@/app/actions/accounts";
 import { notFound } from "next/navigation";
+import { getSession } from "@/app/actions/auth";
+import { redirect } from "next/navigation";
 
 export default async function EditAccountPage({ params }: { params: Promise<{ id: string }> }) {
+  const session = await getSession();
+  if (!session) {
+    redirect("/login");
+  }
+
   const { id } = await params;
   const account = await getAccount(id);
 

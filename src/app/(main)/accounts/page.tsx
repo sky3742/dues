@@ -2,10 +2,17 @@ export const revalidate = 31536000;
 
 import Link from "next/link";
 import { getAccounts } from "@/app/actions/accounts";
-import { DeleteAccountButton } from "@/components/accounts/delete-account-button";
-import { PageTransition } from "@/components/shared/page-transition";
+import { DeleteAccountButton } from "@/components/accounts/DeleteAccountButton";
+import { PageTransition } from "@/components/shared/PageTransition";
+import { getSession } from "@/app/actions/auth";
+import { redirect } from "next/navigation";
 
 export default async function AccountsPage() {
+  const session = await getSession();
+  if (!session) {
+    redirect("/login");
+  }
+
   const accounts = await getAccounts();
 
   return (

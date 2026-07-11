@@ -1,4 +1,4 @@
-import { getDashboardStats } from "@/services/account";
+import { getDashboardStats } from "@/app/actions/accounts";
 
 export async function DashboardStats() {
   const stats = await getDashboardStats();

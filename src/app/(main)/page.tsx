@@ -1,29 +1,23 @@
 export const revalidate = 86400; // revalidate daily; cron also revalidates at midnight +8
 
 import Link from "next/link";
-import { getAccounts } from "@/app/actions/accounts";
-import { getDaysUntilDue, formatDueDate, getNextDueDate } from "@/utils";
-import { findPaymentsByAccountIds } from "@/repositories/payments";
-import { DashboardStats } from "@/components/dashboard/dashboard-stats";
-import { PushAlert } from "@/components/dashboard/push-alert";
-import { PushSubscribe } from "@/components/dashboard/push-subscribe";
-import { PaymentToggle } from "@/components/dashboard/payment-toggle";
-import { PageTransition } from "@/components/shared/page-transition";
-
-function getUrgencyConfig(
-  isPaid: boolean,
-  daysUntilDue: number | null
-): { color: string; border: string } {
-  if (isPaid) return { color: "text-success", border: "border-success" };
-  if (daysUntilDue === null) return { color: "text-base-content/50", border: "border-base-300" };
-  if (daysUntilDue < 0) return { color: "text-error", border: "border-error" };
-  if (daysUntilDue === 0) return { color: "text-error", border: "border-error" };
-  if (daysUntilDue <= 3) return { color: "text-warning", border: "border-warning" };
-  if (daysUntilDue <= 7) return { color: "text-orange-500", border: "border-orange-500" };
-  return { color: "text-info", border: "border-info" };
-}
+import { getAccounts, getPaymentsForAccounts } from "@/app/actions/accounts";
+import { getDaysUntilDue, formatDueDate, getNextDueDate } from "@/utils/date";
+import { getUrgencyConfig } from "@/utils/urgency";
+import { DashboardStats } from "@/components/dashboard/DashboardStats";
+import { PushAlert } from "@/components/dashboard/PushAlert";
+import { PushSubscribe } from "@/components/dashboard/PushSubscribe";
+import { PaymentToggle } from "@/components/dashboard/PaymentToggle";
+import { PageTransition } from "@/components/shared/PageTransition";
+import { getSession } from "@/app/actions/auth";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
+  const session = await getSession();
+  if (!session) {
+    redirect("/login");
+  }
+
   const allAccounts = await getAccounts();
   const activeAccounts = allAccounts.filter((a) => a.isActive);
 
@@ -54,7 +48,7 @@ export default async function Home() {
 
   // Batch: single query for all payments across active accounts
   const accountIds = activeAccounts.map((a) => a.id);
-  const allPayments = await findPaymentsByAccountIds(accountIds);
+  const allPayments = await getPaymentsForAccounts(accountIds);
 
   // Index payments by "accountId:year:month" for O(1) lookup
   const paymentMap = new Map(allPayments.map((p) => [`${p.accountId}:${p.year}:${p.month}`, p]));

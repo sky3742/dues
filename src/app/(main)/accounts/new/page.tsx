@@ -1,7 +1,14 @@
-import { AccountForm } from "@/components/accounts/account-form";
+import { AccountForm } from "@/components/accounts/AccountForm";
 import { createAccount } from "@/app/actions/accounts";
+import { getSession } from "@/app/actions/auth";
+import { redirect } from "next/navigation";
 
-export default function NewAccountPage() {
+export default async function NewAccountPage() {
+  const session = await getSession();
+  if (!session) {
+    redirect("/login");
+  }
+
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
       <div className="max-w-2xl mx-auto">

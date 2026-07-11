@@ -1,7 +1,7 @@
 "use client";
 
 import { togglePayment } from "@/app/actions/payments";
-import { getNextDueDate, getDaysUntilDue } from "@/utils";
+import { getNextDueDate, getDaysUntilDue } from "@/utils/date";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 

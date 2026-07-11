@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, useState, useEffect } from "react";
+import { LogoutButton } from "./LogoutButton";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: "📊" },
@@ -67,6 +68,7 @@ export function Navbar() {
                 </Link>
               );
             })}
+            <LogoutButton />
           </div>
         </div>
       </div>
