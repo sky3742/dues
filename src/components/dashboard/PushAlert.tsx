@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { subscribeToPush } from "@/app/actions/push";
+import { urlBase64ToUint8Array } from "@/utils/vapid";
 
 export function PushAlert() {
   const [show, setShow] = useState(false);
@@ -34,16 +35,10 @@ export function PushAlert() {
     setIsLoading(true);
     try {
       const registration = await navigator.serviceWorker.register("/sw.js");
-      const key = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!;
-      const padding = "=".repeat((4 - (key.length % 4)) % 4);
-      const base64 = (key + padding).replace(/-/g, "+").replace(/_/g, "/");
-      const raw = window.atob(base64);
-      const arr = new Uint8Array(raw.length);
-      for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
 
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: arr,
+        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
       });
 
       const serialized = JSON.parse(JSON.stringify(sub));
