@@ -1,5 +1,3 @@
-export const revalidate = 31536000;
-
 import Link from "next/link";
 import { getAccounts } from "@/app/actions/accounts";
 import { DeleteAccountButton } from "@/components/accounts/DeleteAccountButton";

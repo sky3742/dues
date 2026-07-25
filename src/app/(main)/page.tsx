@@ -1,5 +1,3 @@
-export const revalidate = 86400; // revalidate daily; cron also revalidates at midnight +8
-
 import Link from "next/link";
 import { getAccounts, getPaymentsForAccounts } from "@/app/actions/accounts";
 import { getDaysUntilDue, formatDueDate, getNextDueDate } from "@/utils/date";
