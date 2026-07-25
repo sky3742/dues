@@ -2,14 +2,12 @@ import {
   createAccount,
   updateAccount,
   deleteAccount,
-  toggleAccountActive,
   getAccounts,
   getAccount,
 } from "@/app/actions/accounts";
 import * as accountService from "@/services/account";
 
 vi.mock("@/services/account");
-vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 const mockAccountService = vi.mocked(accountService);
 
@@ -87,24 +85,6 @@ describe("deleteAccount action", () => {
     mockAccountService.deleteAccount.mockResolvedValue({ error: "Account not found" });
 
     const result = await deleteAccount("nonexistent");
-
-    expect(result).toEqual({ error: "Account not found" });
-  });
-});
-
-describe("toggleAccountActive action", () => {
-  it("delegates to service", async () => {
-    mockAccountService.toggleAccountActive.mockResolvedValue({ data: mockAccount });
-
-    const result = await toggleAccountActive("acc-1");
-
-    expect(result).toEqual({ data: mockAccount });
-  });
-
-  it("returns error from service", async () => {
-    mockAccountService.toggleAccountActive.mockResolvedValue({ error: "Account not found" });
-
-    const result = await toggleAccountActive("nonexistent");
 
     expect(result).toEqual({ error: "Account not found" });
   });

@@ -1,4 +1,5 @@
 import * as accountsRepo from "@/repositories/accounts";
+import * as paymentsRepo from "@/repositories/payments";
 import { accountSchema, type AccountInput } from "@/schemas";
 
 export type CreateAccountInput = AccountInput;
@@ -48,23 +49,14 @@ export async function deleteAccount(id: string) {
   return { data: account };
 }
 
-export async function toggleAccountActive(id: string) {
-  const existing = await accountsRepo.findAccountById(id);
-  if (!existing) {
-    return { error: "Account not found" };
-  }
-
-  const account = await accountsRepo.updateAccount(id, {
-    isActive: !existing.isActive,
-  });
-
-  return { data: account };
-}
-
 export async function getAccounts() {
   return accountsRepo.findAllAccounts();
 }
 
 export async function getAccount(id: string) {
   return accountsRepo.findAccountById(id);
+}
+
+export async function getPaymentsForAccounts(accountIds: string[]) {
+  return paymentsRepo.findPaymentsByAccountIds(accountIds);
 }

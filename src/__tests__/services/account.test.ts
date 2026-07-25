@@ -2,7 +2,6 @@ import {
   createAccount,
   updateAccount,
   deleteAccount,
-  toggleAccountActive,
   getAccounts,
   getAccount,
 } from "@/services/account";
@@ -171,42 +170,6 @@ describe("deleteAccount", () => {
     mockAccountsRepo.deleteAccount.mockResolvedValue(null as never);
 
     const result = await deleteAccount("nonexistent");
-
-    expect(result).toEqual({ error: "Account not found" });
-  });
-});
-
-describe("toggleAccountActive", () => {
-  it("toggles active to inactive", async () => {
-    mockAccountsRepo.findAccountById.mockResolvedValue(mockAccount);
-    const inactive = { ...mockAccount, isActive: false };
-    mockAccountsRepo.updateAccount.mockResolvedValue(inactive);
-
-    const result = await toggleAccountActive("acc-1");
-
-    expect(result).toEqual({ data: inactive });
-    expect(mockAccountsRepo.updateAccount).toHaveBeenCalledWith("acc-1", {
-      isActive: false,
-    });
-  });
-
-  it("toggles inactive to active", async () => {
-    const inactive = { ...mockAccount, isActive: false };
-    mockAccountsRepo.findAccountById.mockResolvedValue(inactive);
-    mockAccountsRepo.updateAccount.mockResolvedValue(mockAccount);
-
-    const result = await toggleAccountActive("acc-1");
-
-    expect(result).toEqual({ data: mockAccount });
-    expect(mockAccountsRepo.updateAccount).toHaveBeenCalledWith("acc-1", {
-      isActive: true,
-    });
-  });
-
-  it("returns error when account not found", async () => {
-    mockAccountsRepo.findAccountById.mockResolvedValue(null as never);
-
-    const result = await toggleAccountActive("nonexistent");
 
     expect(result).toEqual({ error: "Account not found" });
   });
