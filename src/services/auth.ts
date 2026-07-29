@@ -70,3 +70,9 @@ export async function getSession() {
     headers: await headers(),
   });
 }
+
+export async function requireSession() {
+  const session = await getSession();
+  if (!session) throw new Error("Unauthorized");
+  return session;
+}

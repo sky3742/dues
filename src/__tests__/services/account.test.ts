@@ -230,15 +230,19 @@ describe("getDashboardStats", () => {
 
   it("counts paid accounts", async () => {
     mockAccountsRepo.findAllAccounts.mockResolvedValue([mockAccount]);
+    const now = new Date();
+    const nextMonth = now.getMonth() + 2;
+    const cycleYear = nextMonth > 12 ? now.getFullYear() + 1 : now.getFullYear();
+    const cycleMonth = nextMonth > 12 ? 1 : nextMonth;
     mockPaymentsRepo.findPaymentsByAccountIds.mockResolvedValue([
       {
         id: "pay-1",
         accountId: "acc-1",
-        year: 2026,
-        month: 7,
+        year: cycleYear,
+        month: cycleMonth,
         paid: true,
-        paidAt: "2026-07-01T00:00:00.000Z",
-        createdAt: "2026-07-01T00:00:00.000Z",
+        paidAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
       },
     ]);
 

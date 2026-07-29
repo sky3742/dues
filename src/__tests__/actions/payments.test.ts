@@ -1,6 +1,9 @@
 import { togglePayment, getPaymentsForAccount } from "@/app/actions/payments";
 import * as paymentService from "@/services/payment";
 
+vi.mock("@/services/auth", () => ({
+  requireSession: vi.fn().mockResolvedValue({ user: { id: "test" } }),
+}));
 vi.mock("@/services/payment");
 
 const mockPaymentService = vi.mocked(paymentService);

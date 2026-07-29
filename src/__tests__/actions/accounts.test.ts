@@ -7,6 +7,9 @@ import {
 } from "@/app/actions/accounts";
 import * as accountService from "@/services/account";
 
+vi.mock("@/services/auth", () => ({
+  requireSession: vi.fn().mockResolvedValue({ user: { id: "test" } }),
+}));
 vi.mock("@/services/account");
 
 const mockAccountService = vi.mocked(accountService);

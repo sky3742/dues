@@ -1,6 +1,9 @@
 import { subscribeToPush, unsubscribeFromPush } from "@/app/actions/push";
 import * as pushSubscriptionsRepo from "@/repositories/pushSubscriptions";
 
+vi.mock("@/services/auth", () => ({
+  requireSession: vi.fn().mockResolvedValue({ user: { id: "test" } }),
+}));
 vi.mock("@/repositories/pushSubscriptions");
 
 const mockRepo = vi.mocked(pushSubscriptionsRepo);
