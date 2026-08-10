@@ -1,59 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { subscribeToPush } from "@/app/actions/push";
-import { urlBase64ToUint8Array } from "@/utils/vapid";
+import { usePushSubscription } from "@/hooks/usePushSubscription";
 
 export function PushAlert() {
   const [show, setShow] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isSupported, isSubscribed, isLoading, subscribe } = usePushSubscription();
 
   useEffect(() => {
     async function check() {
-      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-        return;
-      }
-
-      if (localStorage.getItem("push-alert-dismissed")) {
-        return;
-      }
-
-      try {
-        const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.getSubscription();
-        if (!subscription) {
-          setShow(true);
-        }
-      } catch {
-        // ignore
-      }
+      if (!isSupported || isSubscribed) return;
+      if (localStorage.getItem("push-alert-dismissed")) return;
+      setShow(true);
     }
     check();
-  }, []);
+  }, [isSupported, isSubscribed]);
 
   async function enable() {
-    setIsLoading(true);
-    try {
-      const registration = await navigator.serviceWorker.register("/sw.js");
-
-      const sub = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
-      });
-
-      const serialized = JSON.parse(JSON.stringify(sub));
-      await subscribeToPush({
-        endpoint: serialized.endpoint,
-        p256dh: serialized.keys.p256dh,
-        auth: serialized.keys.auth,
-      });
-
-      setShow(false);
-    } catch (error) {
-      console.error("Failed to subscribe:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    const ok = await subscribe();
+    if (ok) setShow(false);
   }
 
   function dismiss() {
