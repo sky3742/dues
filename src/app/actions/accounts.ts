@@ -2,17 +2,15 @@
 
 import { requireSession } from "@/services/auth";
 import * as accountService from "@/services/account";
-import * as dashboardService from "@/services/dashboard";
+import * as accountsRepo from "@/repositories/accounts";
+import * as paymentsRepo from "@/repositories/payments";
 
-export type CreateAccountInput = accountService.CreateAccountInput;
-export type UpdateAccountInput = accountService.UpdateAccountInput;
-
-export async function createAccount(input: CreateAccountInput) {
+export async function createAccount(input: accountService.CreateAccountInput) {
   await requireSession();
   return accountService.createAccount(input);
 }
 
-export async function updateAccount(input: UpdateAccountInput) {
+export async function updateAccount(input: accountService.UpdateAccountInput) {
   await requireSession();
   return accountService.updateAccount(input);
 }
@@ -24,20 +22,15 @@ export async function deleteAccount(id: string) {
 
 export async function getAccounts() {
   await requireSession();
-  return accountService.getAccounts();
+  return accountsRepo.findAllAccounts();
 }
 
 export async function getAccount(id: string) {
   await requireSession();
-  return accountService.getAccount(id);
-}
-
-export async function getDashboardStats() {
-  await requireSession();
-  return dashboardService.getDashboardStats();
+  return accountsRepo.findAccountById(id);
 }
 
 export async function getPaymentsForAccounts(accountIds: string[]) {
   await requireSession();
-  return accountService.getPaymentsForAccounts(accountIds);
+  return paymentsRepo.findPaymentsByAccountIds(accountIds);
 }

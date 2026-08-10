@@ -1,6 +1,5 @@
 import * as accountsRepo from "@/repositories/accounts";
-import * as paymentsRepo from "@/repositories/payments";
-import { accountSchema, type AccountInput } from "@/schemas";
+import { accountSchema, type AccountInput } from "@/schemas/account";
 
 export type CreateAccountInput = AccountInput;
 export type UpdateAccountInput = Partial<AccountInput> & { id: string };
@@ -47,16 +46,4 @@ export async function deleteAccount(id: string) {
     return { error: "Account not found" };
   }
   return { data: account };
-}
-
-export async function getAccounts() {
-  return accountsRepo.findAllAccounts();
-}
-
-export async function getAccount(id: string) {
-  return accountsRepo.findAccountById(id);
-}
-
-export async function getPaymentsForAccounts(accountIds: string[]) {
-  return paymentsRepo.findPaymentsByAccountIds(accountIds);
 }

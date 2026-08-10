@@ -1,8 +1,11 @@
-import { getDashboardStats } from "@/app/actions/accounts";
+export type DashboardStatsData = {
+  activeCount: number;
+  overdueCount: number;
+  dueSoonCount: number;
+  paidCount: number;
+};
 
-export async function DashboardStats() {
-  const stats = await getDashboardStats();
-
+export function DashboardStats({ stats }: { stats: DashboardStatsData }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
       <div className="stat bg-base-100 rounded-xl shadow-sm border border-base-300/50 p-4">

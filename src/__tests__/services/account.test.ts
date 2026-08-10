@@ -1,19 +1,9 @@
-import {
-  createAccount,
-  updateAccount,
-  deleteAccount,
-  getAccounts,
-  getAccount,
-} from "@/services/account";
-import { getDashboardStats } from "@/services/dashboard";
+import { createAccount, updateAccount, deleteAccount } from "@/services/account";
 import * as accountsRepo from "@/repositories/accounts";
-import * as paymentsRepo from "@/repositories/payments";
 
 vi.mock("@/repositories/accounts");
-vi.mock("@/repositories/payments");
 
 const mockAccountsRepo = vi.mocked(accountsRepo);
-const mockPaymentsRepo = vi.mocked(paymentsRepo);
 
 const mockAccount = {
   id: "acc-1",
@@ -172,84 +162,5 @@ describe("deleteAccount", () => {
     const result = await deleteAccount("nonexistent");
 
     expect(result).toEqual({ error: "Account not found" });
-  });
-});
-
-describe("getAccounts", () => {
-  it("returns all accounts", async () => {
-    mockAccountsRepo.findAllAccounts.mockResolvedValue([mockAccount]);
-
-    const result = await getAccounts();
-
-    expect(result).toEqual([mockAccount]);
-  });
-});
-
-describe("getAccount", () => {
-  it("returns account by id", async () => {
-    mockAccountsRepo.findAccountById.mockResolvedValue(mockAccount);
-
-    const result = await getAccount("acc-1");
-
-    expect(result).toEqual(mockAccount);
-  });
-
-  it("returns null when not found", async () => {
-    mockAccountsRepo.findAccountById.mockResolvedValue(null as never);
-
-    const result = await getAccount("nonexistent");
-
-    expect(result).toBeNull();
-  });
-});
-
-describe("getDashboardStats", () => {
-  it("returns zero stats when no accounts", async () => {
-    mockAccountsRepo.findAllAccounts.mockResolvedValue([]);
-    mockPaymentsRepo.findPaymentsByAccountIds.mockResolvedValue([]);
-
-    const stats = await getDashboardStats();
-
-    expect(stats).toEqual({
-      activeCount: 0,
-      overdueCount: 0,
-      dueSoonCount: 0,
-      paidCount: 0,
-    });
-  });
-
-  it("counts active accounts", async () => {
-    const inactive = { ...mockAccount, id: "acc-2", isActive: false };
-    mockAccountsRepo.findAllAccounts.mockResolvedValue([mockAccount, inactive]);
-    mockPaymentsRepo.findPaymentsByAccountIds.mockResolvedValue([]);
-
-    const stats = await getDashboardStats();
-
-    expect(stats.activeCount).toBe(1);
-  });
-
-  it("counts paid accounts", async () => {
-    mockAccountsRepo.findAllAccounts.mockResolvedValue([mockAccount]);
-    const now = new Date();
-    const nextMonth = now.getMonth() + 2;
-    const cycleYear = nextMonth > 12 ? now.getFullYear() + 1 : now.getFullYear();
-    const cycleMonth = nextMonth > 12 ? 1 : nextMonth;
-    mockPaymentsRepo.findPaymentsByAccountIds.mockResolvedValue([
-      {
-        id: "pay-1",
-        accountId: "acc-1",
-        year: cycleYear,
-        month: cycleMonth,
-        paid: true,
-        paidAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-      },
-    ]);
-
-    const stats = await getDashboardStats();
-
-    expect(stats.paidCount).toBe(1);
-    expect(stats.overdueCount).toBe(0);
-    expect(stats.dueSoonCount).toBe(0);
   });
 });

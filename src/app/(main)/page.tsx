@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getAccounts, getPaymentsForAccounts } from "@/app/actions/accounts";
 import { getDaysUntilDue, formatDueDate, getNextDueDate } from "@/utils/date";
 import { getUrgencyConfig } from "@/utils/urgency";
-import { DashboardStats } from "@/components/dashboard/DashboardStats";
+import { DashboardStats, type DashboardStatsData } from "@/components/dashboard/DashboardStats";
 import { PushAlert } from "@/components/dashboard/PushAlert";
 import { PushSubscribe } from "@/components/dashboard/PushSubscribe";
 import { PaymentToggle } from "@/components/dashboard/PaymentToggle";
@@ -51,6 +51,34 @@ export default async function Home() {
   // Index payments by "accountId:year:month" for O(1) lookup
   const paymentMap = new Map(allPayments.map((p) => [`${p.accountId}:${p.year}:${p.month}`, p]));
 
+  let overdueCount = 0;
+  let dueSoonCount = 0;
+  let paidCount = 0;
+
+  for (const { account, cycle, daysUntilDue } of accountMeta) {
+    const payment = paymentMap.get(`${account.id}:${cycle.year}:${cycle.month}`);
+
+    if (payment?.paid) {
+      paidCount++;
+      continue;
+    }
+
+    if (daysUntilDue !== null) {
+      if (daysUntilDue < 0) {
+        overdueCount++;
+      } else if (daysUntilDue <= account.reminderDays) {
+        dueSoonCount++;
+      }
+    }
+  }
+
+  const stats: DashboardStatsData = {
+    activeCount: activeAccounts.length,
+    overdueCount,
+    dueSoonCount,
+    paidCount,
+  };
+
   const accountsWithStatus = accountMeta.map(({ account, cycle, daysUntilDue }) => {
     const payment = paymentMap.get(`${account.id}:${cycle.year}:${cycle.month}`);
     const isPaid = payment?.paid ?? false;
@@ -94,7 +122,7 @@ export default async function Home() {
         <PushAlert />
 
         <div className="mb-8">
-          <DashboardStats />
+          <DashboardStats stats={stats} />
         </div>
 
         <div className="mb-6">

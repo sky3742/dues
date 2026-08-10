@@ -6,13 +6,16 @@ import {
   getAccount,
 } from "@/app/actions/accounts";
 import * as accountService from "@/services/account";
+import * as accountsRepo from "@/repositories/accounts";
 
 vi.mock("@/services/auth", () => ({
   requireSession: vi.fn().mockResolvedValue({ user: { id: "test" } }),
 }));
 vi.mock("@/services/account");
+vi.mock("@/repositories/accounts");
 
 const mockAccountService = vi.mocked(accountService);
+const mockAccountsRepo = vi.mocked(accountsRepo);
 
 const mockAccount = {
   id: "acc-1",
@@ -94,8 +97,8 @@ describe("deleteAccount action", () => {
 });
 
 describe("getAccounts action", () => {
-  it("delegates to service", async () => {
-    mockAccountService.getAccounts.mockResolvedValue([mockAccount]);
+  it("delegates to repo", async () => {
+    mockAccountsRepo.findAllAccounts.mockResolvedValue([mockAccount]);
 
     const result = await getAccounts();
 
@@ -104,8 +107,8 @@ describe("getAccounts action", () => {
 });
 
 describe("getAccount action", () => {
-  it("delegates to service", async () => {
-    mockAccountService.getAccount.mockResolvedValue(mockAccount);
+  it("delegates to repo", async () => {
+    mockAccountsRepo.findAccountById.mockResolvedValue(mockAccount);
 
     const result = await getAccount("acc-1");
 
@@ -113,7 +116,7 @@ describe("getAccount action", () => {
   });
 
   it("returns null when not found", async () => {
-    mockAccountService.getAccount.mockResolvedValue(null as never);
+    mockAccountsRepo.findAccountById.mockResolvedValue(null as never);
 
     const result = await getAccount("nonexistent");
 

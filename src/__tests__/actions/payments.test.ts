@@ -1,12 +1,12 @@
-import { togglePayment, getPaymentsForAccount } from "@/app/actions/payments";
-import * as paymentService from "@/services/payment";
+import { togglePayment } from "@/app/actions/payments";
+import * as paymentsRepo from "@/repositories/payments";
 
 vi.mock("@/services/auth", () => ({
   requireSession: vi.fn().mockResolvedValue({ user: { id: "test" } }),
 }));
-vi.mock("@/services/payment");
+vi.mock("@/repositories/payments");
 
-const mockPaymentService = vi.mocked(paymentService);
+const mockRepo = vi.mocked(paymentsRepo);
 
 const mockPayment = {
   id: "pay-1",
@@ -23,22 +23,12 @@ beforeEach(() => {
 });
 
 describe("togglePayment action", () => {
-  it("delegates to service", async () => {
-    mockPaymentService.togglePayment.mockResolvedValue({ data: mockPayment });
+  it("toggles payment via repo", async () => {
+    mockRepo.upsertPaidStatus.mockResolvedValue(mockPayment);
 
     const result = await togglePayment("acc-1", 2026, 7);
 
-    expect(result).toEqual({ data: mockPayment });
-    expect(mockPaymentService.togglePayment).toHaveBeenCalledWith("acc-1", 2026, 7);
-  });
-});
-
-describe("getPaymentsForAccount action", () => {
-  it("delegates to service", async () => {
-    mockPaymentService.getPaymentsForAccount.mockResolvedValue([mockPayment]);
-
-    const result = await getPaymentsForAccount("acc-1");
-
-    expect(result).toEqual([mockPayment]);
+    expect(result).toEqual(mockPayment);
+    expect(mockRepo.upsertPaidStatus).toHaveBeenCalledWith("acc-1", 2026, 7);
   });
 });
