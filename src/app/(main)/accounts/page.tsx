@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getAccounts } from "@/app/actions/accounts";
 import { DeleteAccountButton } from "@/components/accounts/DeleteAccountButton";
-import { PageTransition } from "@/components/shared/PageTransition";
 import { getSession } from "@/app/actions/auth";
 import { redirect } from "next/navigation";
 
@@ -14,7 +13,7 @@ export default async function AccountsPage() {
   const accounts = await getAccounts();
 
   return (
-    <PageTransition>
+    <div className="animate-slide-up">
       <div className="container mx-auto max-w-4xl px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -79,6 +78,6 @@ export default async function AccountsPage() {
           </div>
         )}
       </div>
-    </PageTransition>
+    </div>
   );
 }

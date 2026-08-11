@@ -6,7 +6,6 @@ import { DashboardStats, type DashboardStatsData } from "@/components/dashboard/
 import { PushAlert } from "@/components/dashboard/PushAlert";
 import { PushSubscribe } from "@/components/dashboard/PushSubscribe";
 import { PaymentToggle } from "@/components/dashboard/PaymentToggle";
-import { PageTransition } from "@/components/shared/PageTransition";
 import { getSession } from "@/app/actions/auth";
 import { redirect } from "next/navigation";
 
@@ -112,7 +111,7 @@ export default async function Home() {
   });
 
   return (
-    <PageTransition>
+    <div className="animate-slide-up">
       <div className="container mx-auto max-w-4xl px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
@@ -217,6 +216,6 @@ export default async function Home() {
           </div>
         )}
       </div>
-    </PageTransition>
+    </div>
   );
 }
