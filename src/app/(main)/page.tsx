@@ -197,6 +197,7 @@ export default async function Home() {
                           <PaymentToggle
                             account={account}
                             payment={account.isPaid ? { paid: true } : null}
+                            cycle={account.cycle}
                           />
                         </div>
                       </div>
