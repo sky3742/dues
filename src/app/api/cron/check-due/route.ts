@@ -58,7 +58,7 @@ export async function GET(request: Request) {
       const { sent } = await sendPushToAll(subscriptions, {
         title: "Dues Reminder",
         body: `Your ${account.name} is due in ${daysUntilDue} day${daysUntilDue === 1 ? "" : "s"}`,
-        icon: "/icon.png",
+        icon: "/icon-192.png",
       });
 
       notificationsSent += sent;

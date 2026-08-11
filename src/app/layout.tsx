@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { PwaRegister } from "@/components/shared/PwaRegister";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,6 +16,24 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Dues Reminder",
   description: "Track payment due dates and get reminded before they're due",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Dues",
+  },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
 };
 
 type RootLayoutProps = {
@@ -29,7 +48,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
       data-theme="light"
       data-scroll-behavior="smooth"
     >
-      <body className="min-h-full flex flex-col bg-base-200/50">{children}</body>
+      <body className="min-h-full flex flex-col bg-base-200/50">
+        {children}
+        <PwaRegister />
+      </body>
     </html>
   );
 }
