@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useState, useEffect } from "react";
 import { LogoutButton } from "./LogoutButton";
 
 const navItems = [
@@ -12,22 +11,6 @@ const navItems = [
 
 export function Navbar() {
   const pathname = usePathname();
-  const navRef = useRef<HTMLDivElement>(null);
-  const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
-
-  useEffect(() => {
-    const nav = navRef.current;
-    if (!nav) return;
-    const activeLink = nav.querySelector(`[data-active="true"]`) as HTMLElement | null;
-    if (activeLink) {
-      const navRect = nav.getBoundingClientRect();
-      const linkRect = activeLink.getBoundingClientRect();
-      setIndicator({
-        left: linkRect.left - navRect.left,
-        width: linkRect.width,
-      });
-    }
-  }, [pathname]);
 
   return (
     <nav className="bg-base-100/80 backdrop-blur-md border-b border-base-300 sticky top-0 z-50 animate-slide-down">
@@ -40,24 +23,18 @@ export function Navbar() {
             </span>
           </Link>
 
-          <div ref={navRef} className="relative flex items-center gap-1">
-            {indicator && (
-              <div
-                className="absolute inset-0 bg-primary/10 rounded-lg transition-all duration-300 ease-out"
-                style={{ left: indicator.left, width: indicator.width }}
-              />
-            )}
+          <div className="flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  data-active={isActive}
+                  aria-current={isActive ? "page" : undefined}
                   prefetch={false}
-                  className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-colors z-10 ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? "text-primary"
+                      ? "text-primary bg-primary/10"
                       : "text-base-content/60 hover:text-base-content hover:bg-base-200"
                   }`}
                 >
