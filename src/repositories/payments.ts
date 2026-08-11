@@ -14,15 +14,6 @@ export async function findPaymentForCycle(accountId: string, year: number, month
   return payment ?? null;
 }
 
-export async function findPaymentsByAccountId(accountId: string) {
-  const db = createDb();
-  return db
-    .select()
-    .from(payments)
-    .where(eq(payments.accountId, accountId))
-    .orderBy(payments.year, payments.month);
-}
-
 export async function findPaymentsByAccountIds(accountIds: string[]) {
   if (accountIds.length === 0) return [];
   const db = createDb();
