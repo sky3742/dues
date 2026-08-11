@@ -1,12 +1,18 @@
 const CACHE_NAME = "dues-v1";
-const PRECACHE_URLS = [
-  "/",
-  "/login",
-  "/accounts",
-  "/manifest.webmanifest",
-  "/icon-192.png",
-  "/icon-512.png",
-];
+const PRECACHE_URLS = ["/icon-192.png", "/icon-512.png", "/manifest.webmanifest"];
+const STATIC_EXT = new Set([
+  ".js",
+  ".css",
+  ".png",
+  ".svg",
+  ".jpg",
+  ".jpeg",
+  ".webp",
+  ".gif",
+  ".ico",
+  ".woff",
+  ".woff2",
+]);
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -33,20 +39,10 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
-  if (url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
+  if (url.origin !== self.location.origin) return;
 
-  if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put("/", copy));
-          return response;
-        })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match("/")))
-    );
-    return;
-  }
+  const lastSegment = url.pathname.split(".").pop() ?? "";
+  if (!STATIC_EXT.has(`.${lastSegment.toLowerCase()}`)) return;
 
   event.respondWith(
     caches.match(request).then((cached) => {
