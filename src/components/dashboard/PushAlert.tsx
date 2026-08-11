@@ -5,16 +5,16 @@ import { usePushSubscription } from "@/hooks/usePushSubscription";
 
 export function PushAlert() {
   const [show, setShow] = useState(false);
-  const { isSupported, isSubscribed, isLoading, subscribe } = usePushSubscription();
+  const { isSupported, isSubscribed, checked, isLoading, subscribe } = usePushSubscription();
 
   useEffect(() => {
     async function check() {
-      if (!isSupported || isSubscribed) return;
+      if (!checked || !isSupported || isSubscribed) return;
       if (localStorage.getItem("push-alert-dismissed")) return;
       setShow(true);
     }
     check();
-  }, [isSupported, isSubscribed]);
+  }, [checked, isSupported, isSubscribed]);
 
   async function enable() {
     const ok = await subscribe();

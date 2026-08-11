@@ -7,11 +7,15 @@ import { urlBase64ToUint8Array } from "@/utils/vapid";
 export function usePushSubscription() {
   const [isSupported, setIsSupported] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [checked, setChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     async function init() {
-      if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+        setChecked(true);
+        return;
+      }
       setIsSupported(true);
       try {
         const registration = await navigator.serviceWorker.ready;
@@ -19,6 +23,8 @@ export function usePushSubscription() {
         setIsSubscribed(!!subscription);
       } catch {
         console.error("Failed to check subscription");
+      } finally {
+        setChecked(true);
       }
     }
     init();
@@ -72,5 +78,5 @@ export function usePushSubscription() {
     }
   };
 
-  return { isSupported, isSubscribed, isLoading, subscribe, unsubscribe };
+  return { isSupported, isSubscribed, isLoading, subscribe, unsubscribe, checked };
 }
