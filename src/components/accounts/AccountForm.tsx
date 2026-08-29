@@ -24,6 +24,7 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
         type: form.get("type") as "recurring" | "one_time",
         dueDay: Number(form.get("dueDay")),
         reminderDays: Number(form.get("reminderDays")),
+        isActive: form.get("isActive") === "on",
       });
       if (result.error) {
         setErrorMessage(result.error);
@@ -113,6 +114,21 @@ export function AccountForm({ account, onSubmit }: AccountFormProps) {
           </label>
         </div>
       </div>
+
+      <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-base-300 p-4">
+        <input
+          type="checkbox"
+          name="isActive"
+          defaultChecked={account?.isActive ?? true}
+          className="checkbox checkbox-primary"
+        />
+        <span>
+          <span className="block font-medium">Active account</span>
+          <span className="block text-sm text-base-content/60">
+            Include this account on the dashboard and in payment reminders
+          </span>
+        </span>
+      </label>
 
       <div className="flex gap-3 justify-end mt-4 pt-4 border-t border-base-300">
         <button

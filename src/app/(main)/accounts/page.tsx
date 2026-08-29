@@ -57,6 +57,9 @@ export default async function AccountsPage() {
                       <span className="text-sm text-base-content/60 shrink-0">
                         {account.type === "recurring" ? "Monthly" : "One-time"}
                       </span>
+                      {!account.isActive && (
+                        <span className="badge badge-sm badge-ghost shrink-0">Inactive</span>
+                      )}
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                       <Link

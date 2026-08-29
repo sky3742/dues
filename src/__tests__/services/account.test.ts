@@ -37,6 +37,7 @@ describe("createAccount", () => {
       type: "recurring",
       dueDay: 15,
       reminderDays: 3,
+      isActive: true,
     });
   });
 
@@ -67,6 +68,22 @@ describe("createAccount", () => {
 
     expect(mockAccountsRepo.insertAccount).toHaveBeenCalledWith(
       expect.objectContaining({ reminderDays: 3 })
+    );
+  });
+
+  it("creates an inactive account when requested", async () => {
+    mockAccountsRepo.insertAccount.mockResolvedValue({ ...mockAccount, isActive: false });
+
+    await createAccount({
+      name: "Netflix",
+      type: "recurring",
+      dueDay: 15,
+      reminderDays: 3,
+      isActive: false,
+    });
+
+    expect(mockAccountsRepo.insertAccount).toHaveBeenCalledWith(
+      expect.objectContaining({ isActive: false })
     );
   });
 
@@ -122,6 +139,17 @@ describe("updateAccount", () => {
     expect(mockAccountsRepo.updateAccount).toHaveBeenCalledWith(
       "acc-1",
       expect.objectContaining({ name: "Updated" })
+    );
+  });
+
+  it("updates account active state", async () => {
+    mockAccountsRepo.updateAccount.mockResolvedValue({ ...mockAccount, isActive: false });
+
+    await updateAccount({ id: "acc-1", isActive: false });
+
+    expect(mockAccountsRepo.updateAccount).toHaveBeenCalledWith(
+      "acc-1",
+      expect.objectContaining({ isActive: false })
     );
   });
 

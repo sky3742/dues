@@ -13,6 +13,11 @@ describe("accountSchema", () => {
     expect(result.success).toBe(true);
   });
 
+  it("accepts an inactive account", () => {
+    const result = accountSchema.safeParse({ ...valid, isActive: false });
+    expect(result.success).toBe(true);
+  });
+
   it("rejects empty name", () => {
     const result = accountSchema.safeParse({ ...valid, name: "" });
     expect(result.success).toBe(false);

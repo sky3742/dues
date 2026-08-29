@@ -14,6 +14,7 @@ export const accountSchema = z.object({
     .min(0, "Reminder days must be between 0 and 30")
     .max(30, "Reminder days must be between 0 and 30")
     .optional(),
+  isActive: z.boolean().optional(),
 });
 
 export type AccountInput = z.infer<typeof accountSchema>;

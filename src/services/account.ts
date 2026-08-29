@@ -15,6 +15,7 @@ export async function createAccount(input: CreateAccountInput) {
     type: result.data.type,
     dueDay: result.data.dueDay,
     reminderDays: result.data.reminderDays ?? 3,
+    isActive: result.data.isActive ?? true,
   });
 
   return { data: account };
