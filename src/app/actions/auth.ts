@@ -15,7 +15,7 @@ export async function getSession() {
 
 export async function signInWithPasscode(passcode: string) {
   const serverPasscode = process.env.AUTH_PASSCODE;
-  const adminEmail = process.env.AUTH_ADMIN_EMAIL;
+  const adminEmail = process.env.AUTH_ADMIN_EMAIL?.trim().toLowerCase();
   const adminPassword = process.env.AUTH_ADMIN_PASSWORD;
 
   if (!serverPasscode || !adminEmail || !adminPassword) {
