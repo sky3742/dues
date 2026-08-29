@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getAccounts } from "@/app/actions/accounts";
 import { DeleteAccountButton } from "@/components/accounts/DeleteAccountButton";
+import { AccountStatusToggle } from "@/components/accounts/AccountStatusToggle";
 import { getSession } from "@/app/actions/auth";
 import { redirect } from "next/navigation";
 
@@ -57,11 +58,20 @@ export default async function AccountsPage() {
                       <span className="text-sm text-base-content/60 shrink-0">
                         {account.type === "recurring" ? "Monthly" : "One-time"}
                       </span>
-                      {!account.isActive && (
-                        <span className="badge badge-sm badge-ghost shrink-0">Inactive</span>
-                      )}
+                      <span
+                        className={`badge badge-sm shrink-0 ${
+                          account.isActive ? "badge-success badge-outline" : "badge-warning"
+                        }`}
+                      >
+                        {account.isActive ? "Active" : "Inactive"}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
+                      <AccountStatusToggle
+                        accountId={account.id}
+                        accountName={account.name}
+                        isActive={account.isActive}
+                      />
                       <Link
                         href={`/accounts/${account.id}/edit`}
                         className="btn btn-ghost btn-xs"
