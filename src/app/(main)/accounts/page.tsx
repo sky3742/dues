@@ -52,9 +52,9 @@ export default async function AccountsPage() {
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className="card-body p-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <h3 className="font-semibold truncate">{account.name}</h3>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                      <h3 className="min-w-0 max-w-full truncate font-semibold">{account.name}</h3>
                       <span className="text-sm text-base-content/60 shrink-0">
                         {account.type === "recurring" ? "Monthly" : "One-time"}
                       </span>
@@ -66,7 +66,7 @@ export default async function AccountsPage() {
                         {account.isActive ? "Active" : "Inactive"}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex flex-wrap items-center justify-end gap-1 sm:shrink-0">
                       <AccountStatusToggle
                         accountId={account.id}
                         accountName={account.name}
